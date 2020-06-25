@@ -1,0 +1,38 @@
+.InputDiv {
+  width: 100%;
+  box-sizing: border-box;
+}
+.LabelStyle{
+  font-weight: bold;
+  display: block;
+  margin-bottom: 8px;
+}
+.ValidateNote{
+  text-align: left;
+  margin: 1px 0;
+  color: red;
+}
+
+.InputElement{
+  box-shadow: none;
+  outline: none;
+  height: 50px;
+  box-sizing: border-box;
+}
+.InputElement:focus {
+  border: 1px solid #707070;
+}
+
+.TextAreaElement{
+  outline: none;
+  font: inherit;
+  display: block;
+  box-sizing: border-box;
+}
+.SelectElement{
+  outline: none;
+  font: inherit;
+  display: block; 
+  padding: .8rem !important;
+  box-sizing: border-box;
+}

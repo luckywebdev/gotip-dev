@@ -1,0 +1,9 @@
+{
+    "dev": {
+      "domain": "gotip-dev-fab49.firebaseapp.com",
+      "database_url": "https://gotip-dev-fab49.firebaseio.com",
+      "apikey": "AIzaSyAuOlr-KVXotEj-xAgTEUvo4GJByVCAUXo",
+      "project_id": "gotip-dev-fab49"
+    }
+  }
+  
