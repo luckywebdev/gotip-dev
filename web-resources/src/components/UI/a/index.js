@@ -39,6 +39,9 @@ const Anchor = styled.a`
 export default (props) => {
 
   return (
-    <Anchor href={ props.href } data={props} onClick={ props.clicked }>{ props.text }</Anchor>
+    <Anchor href={ props.href } data={props} target={props.target} id={props.id} onClick={ props.clicked }>
+      { props.text }
+      { props.children }
+    </Anchor>
   );
 }

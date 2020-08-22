@@ -1,7 +1,8 @@
 const initialState = {
   show_state: false,
   loadingMessage: null,
-  gettingState: false
+  gettingState: false,
+  otherUser: {}
 }
 
 export default (state = initialState, action) => {
@@ -18,6 +19,18 @@ export default (state = initialState, action) => {
     case 'SET_ACCOUNT_INFO':
       newState.user = action.payload
       newState.authLevel = action.payload && action.payload.authLevel ? action.payload.authLevel : 1
+      break;
+    case 'SET_CHILD_AGENT':
+      newState.agent = action.payload
+      break;
+    case 'SET_OTHER_ACCOUNT_INFO':
+      newState.user = action.payload
+      newState.gettingState = true
+      break;
+    case 'SET_OTHER_AGENT_ACCOUNT_INFO':
+      newState.otherUser = action.payload.account
+      newState.otherUserBank = action.payload.bank
+      newState.gettingState = true
       break;
     case 'SET_REDIRECT':
       newState.historyRedirect = action.payload
@@ -54,6 +67,9 @@ export default (state = initialState, action) => {
             Object.assign({ key }, action.payload.infos[key])
           )
         })
+      break;
+    case 'SET_POSTED_INFORMATION':
+      newState.postedInfo = action.payload.infos;
       break;
     default:
 

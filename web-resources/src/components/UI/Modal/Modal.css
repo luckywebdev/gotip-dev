@@ -35,3 +35,15 @@
     font-weight: bolder;
     color: #CCC;
 }
+
+@media screen and (max-width: 1320px){
+    .StyleModal {
+        width: 50% !important;
+    }
+}
+
+@media screen and (max-width: 980px){
+    .StyleModal {
+        width: 70% !important;
+    }
+}

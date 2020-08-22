@@ -1,14 +1,12 @@
 import { call, put, fork, take } from 'redux-saga/effects'
-import alertErrorMessage from './commonAlert'
+import { alertErrorMessage } from './commonAlert'
 
 
 export default function* handleSignOut (firebase) {
   while (true) {
     const action = yield take('EXECUTE_LOGOUT')
-
     yield put({ type: 'SET_LOADING_TEXT', payload: 'ログアウト処理中' })
     const { error } = yield call(signOut, firebase)
-    
     if (!error) {
       localStorage.clear();
       window.location.reload()
@@ -22,7 +20,7 @@ function signOut (firebase) {
   return new Promise((resolve) => {
     try {
       firebase.auth().signOut()
-      .then(() => {
+      .then((result) => {
         resolve({})
       })
       .catch(err => {

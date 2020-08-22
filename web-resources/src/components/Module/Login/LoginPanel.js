@@ -47,7 +47,7 @@ const RoundedButton = styled.button`
   color: #FFF;
   border: none;
   height: 60px;
-  font-size: 1.2rem;
+  font-size: 1.1em;
 
   &:hover {
     background-color: #30AA89;
@@ -64,10 +64,10 @@ const RoundedOutlineButton = styled.button`
   background-color: #FFF;
   color: #30AA89;
   height: 40px;
-  font-size: .8rem;
+  font-size: .7em;
 `
 const RowDiv = styled.div`
-  width: 70%;
+  width: 80%;
   max-width: 500px;
   ${media.lessThan("large")`
     width: 90% !important;
@@ -181,7 +181,7 @@ class LoginPanel extends Component {
                     <ErrorMsg>{this.state.errors.email}</ErrorMsg>
                 </RowDiv>
                 <RowDiv className="uk-margin uk-align-center">
-                    <LoginInput className="uk-input" type="text" name="password" placeholder="パスワード" onChange={ this.handleInput } value={this.state.password} />
+                    <LoginInput className="uk-input" type="password" name="password" placeholder="パスワード" onChange={ this.handleInput } value={this.state.password} />
                     <ErrorMsg>{this.state.errors.password}</ErrorMsg>
                 </RowDiv>
   
@@ -199,14 +199,14 @@ class LoginPanel extends Component {
   
                 <RowDiv className="uk-margin uk-align-center uk-text-justify uk-flex uk-flex-between uk-flex-middle">
                   <LineDiv width="25%"></LineDiv>
-                  <span className="uk-text-normal uk-text-center" style={{fontSize: '.8rem'}}>{Constants.SNS_LOGIN_TITLE}</span>
+                  <span className="uk-text-normal uk-text-center" style={{fontSize: '.8em'}}>{Constants.SNS_LOGIN_TITLE}</span>
                   <LineDiv width="25%"></LineDiv>
                 </RowDiv>
   
                 <RowDiv className="uk-margin uk-align-center uk-text-center uk-flex uk-flex-center uk-flex-middle">
-                    <SignInFaceBook />
-                    <SignInTwitter />
-                    <SignInGoogle />
+                    <SignInFaceBook type="signin" />
+                    <SignInTwitter type="signin" />
+                    <SignInGoogle type="signin" />
                 </RowDiv>
   
                 <LastRowDiv className="uk-margin uk-align-center uk-text-center">

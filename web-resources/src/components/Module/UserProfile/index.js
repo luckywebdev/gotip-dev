@@ -17,6 +17,7 @@ import styled from 'styled-components';
 import Btn from '../../UI/btn';
 import Input from '../../UI/input';
 import Div from '../../UI/div';
+import SnsUrlInfo from '../../Partial/SnsUrlInfo';
 
 const UserProfileContent = styled.div`
   width: 100%;
@@ -37,20 +38,24 @@ const ProfileImage = styled.img`
 `
 const OnlineStateButton = styled.span`
   border-radius: 20px;
-  padding: .1rem 2rem;
-  margin: 1rem 1rem .5rem 1rem;
+  padding: .1rem 1rem;
+  // margin: 1rem 1rem .5rem 1rem;
   text-align: center;
   color: #FFF;
   background-color: #EA497B;
   border: none;
 `
-const ProfileImageEditIcon = styled.img`
+const ProfileImageEditIcon = styled.span`
   width: 35px;
   height: 35px;
   position: absolute;
   bottom: -10px;
   left: 145px;
   z-index: 1005;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `
 const PictureEditSection = styled.div`
   width: 100%;
@@ -94,7 +99,6 @@ class UserProfile extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    console.log("nextProps", nextProps);
     if(this.props.allState.userEdit.editResult !== nextProps.allState.userEdit.editResult)
       return true;
     if(this.state.editable !== nextState.editable)
@@ -130,11 +134,11 @@ class UserProfile extends Component {
     const { allState } = this.props;
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    const userAge = currentYear - allState.main.user.birthdate.year;
+    const userAge = (typeof allState.main.user.birthdate !== 'undefined') ? (currentYear - allState.main.user.birthdate.year) : "";
     this.setState({
       editable: !this.state.editable,
       updateType: 'personal',
-      userName: allState.main.user.name.value,
+      userName: allState.main.user.name.nickname,
       userAge: userAge,
       color: allState.main.user.theme_color,
       userState: allState.main.user.userState
@@ -154,16 +158,25 @@ class UserProfile extends Component {
     })
   }
 
-  profileImageEdit = () => (
-    <ProfileImageEditIcon src="/static/img/photoedit_icon.png" alt="photoedit_icon" onClick={this.EditablePhotoChange} />
-  );
-  profileInfoEdit = () => (
-    <Btn text={Constants.PROFILE_EDIT_BTN} color="#6FC4AD" btnType="rounded" border="1px solid #30AA89" fontSize=".7rem" backcolor="transparent" radius="3px" onClick={ this.EditablePersonalInfoChange } />
-  );
+  profileImageEdit = () => {
+    const { allState } = this.props;
+    const theme_color = typeof allState.main.user !== 'undefined' && typeof allState.main.user.theme_color !== 'undefined' ? allState.main.user.theme_color : "#30AA89";
+    return (
+      // <ProfileImageEditIcon src="/static/img/photoedit_icon.png" alt="photoedit_icon" onClick={this.EditablePhotoChange} />
+      <ProfileImageEditIcon  style={{backgroundColor: theme_color, color: "#FFF"}} onClick={this.EditablePhotoChange} > <span  uk-icon="icon: camera" style={{color: "#FFF"}}></span> </ProfileImageEditIcon>
+    );
+  }
+  profileInfoEdit = () => {
+    const { allState } = this.props;
+    const theme_color = typeof allState.main.user !== 'undefined' && typeof allState.main.user.theme_color !== 'undefined' ? allState.main.user.theme_color : "#30AA89";
+    return   (
+      <Btn text={Constants.PROFILE_EDIT_BTN} color={theme_color} btnType="rounded" border={`1px solid ${theme_color}`} fontSize=".7rem" backcolor="transparent" radius="3px" onClick={ this.EditablePersonalInfoChange } />
+    );  
+  }
 
   PersonalInfoUpdate = () => {
     let infoData = {
-      userName: this.state.userName,
+      nickname: this.state.userName,
       userAge: this.state.userAge,
       userState: this.state.userState,
       themeColor: this.state.color
@@ -210,22 +223,27 @@ class UserProfile extends Component {
     if(typeof allState.main.user !== 'undefined' && Object.keys(allState.main.user).length !== 0 && allState.main.user.constructor === Object){
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      const userAge = currentYear - allState.main.user.birthdate.year;
+      const userAge = (typeof allState.main.user.birthdate !== 'undefined' && allState.main.user.birthdate.year !== "") ? (currentYear - allState.main.user.birthdate.year) : "";
   
-      userData.userName = allState.main.user.name.value;
+      userData.userName = allState.main.user.name.nickname;
       userData.userAge = userAge;
       userData.color = allState.main.user.theme_color;
       userData.userState = allState.main.user.userState;
       if(typeof allState.main.user.profileImgUrl !== 'undefined' && allState.main.user.profileImgUrl !== '')
         userData.profileImage = allState.main.user.profileImgUrl;
     }
+    const theme_color = typeof allState.main.user !== 'undefined' && typeof allState.main.user.theme_color !== 'undefined' ? allState.main.user.theme_color : "#30AA89";
+
 
     return(
       <UserProfileContent>
         <ProfileImage src={userData.profileImage} alt="user_avatar" />
         { this.props.editable ? this.profileImageEdit() : '' }
         <div className="uk-flex uk-flex-column uk-flex-left uk-flex-top">
-          <OnlineStateButton>Online</OnlineStateButton>
+          <div className="uk-flex uk-flex-row" style={{margin: "1rem 1rem 0.5rem 1rem"}}>
+            <OnlineStateButton>Online</OnlineStateButton>
+            <SnsUrlInfo editable={this.props.editable} />
+          </div>
           <div className="uk-margin-left">
             <span>{userData.userName}</span>
             <span>{(userData.userAge !== '' && userData.userState === '0') ? '(' + userData.userAge + '歳)' : '' }</span>
@@ -249,21 +267,21 @@ class UserProfile extends Component {
                   <ImageUploading
                     onChange={this.onChangeImage}
                     maxFileSize={maxMbFileSize}
-                    // acceptType={["jpg", "gif", "png"]}
-                    defaultValue={[{dataURL: userData.profileImage}]}
+                    acceptType={["jpg", "gif", "png"]}
+                    maxNumber="20"
+                    defaultValue={[{ dataURL: userData.profileImage }]}
                   >
-                    {({ imageList, onImageUpload, onImageRemoveAll }) => {
-                      if(imageList.dataURL !== null) {
-                        return imageList.map((image) => (
-                          <div className="uk-flex uk-flex-center" style={{width: "165px", height: "165px", zIndex: "2000", margin: 'auto', border: '1px solid #ddd', borderRadius: '5px' }} key={image.key} onClick={image.onUpdate}>
-                            <img src={image.dataURL} alt="avatar" data-image={this.state.defaultUrl} />
-                          </div>
-                        ));
-                      }
-                      else{
-                        return (<div style={{width: "165px", height: "165px", zIndex: "2000", margin: 'auto', border: '1px solid #ddd', borderRadius: '5px'}} onClick={onImageUpload}></div>);
-                      }
-                    }}
+                    {({ imageList }) => (
+                      <div>
+                        {
+                          imageList.map((image) => (
+                            <div className="uk-flex uk-flex-center" style={{width: "165px", height: "165px", zIndex: "2000", margin: 'auto', border: '1px solid #ddd', borderRadius: '5px' }} key={image.key} onClick={image.onUpdate}>
+                              <img src={image.dataURL} alt="avatar" />
+                            </div>
+                          ))
+                        }
+                      </div>
+                    )}
                   </ImageUploading>
                 </PictureEditSection>
               ) : (
@@ -310,7 +328,7 @@ class UserProfile extends Component {
             }
 
           <div className="uk-flex uk-flex-center uk-margin-top">
-            <Btn width="25%" radius="20px" backcolor="#30AA89" fontSize=".7rem" padding=".5rem 2rem" margin="1.5rem auto .5rem auto" text={ this.state.updateType === 'photo' ? Constants.UPLOAD_PICTURE : Constants.UPDATE_CONTENT } btnType="rounded" onClick={this.state.updateType === 'photo' ? this.PhotoUpdate : this.PersonalInfoUpdate} />
+            <Btn width="25%" radius="20px" backcolor={theme_color} fontSize=".7rem" padding=".5rem 2rem" margin="1.5rem auto .5rem auto" text={ this.state.updateType === 'photo' ? Constants.UPLOAD_PICTURE : Constants.UPDATE_CONTENT } btnType="rounded" onClick={this.state.updateType === 'photo' ? this.PhotoUpdate : this.PersonalInfoUpdate} />
           </div>
         </Modal>
 

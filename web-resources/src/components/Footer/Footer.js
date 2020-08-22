@@ -65,7 +65,7 @@ const footerLinks = [
     items: [
       {
         text: 'ホーム',
-        onClick: pushInternalHistory.bind(this, '/main')
+        onClick: pushInternalHistory.bind(this, '/home')
       },
       {
         text: '会社概要',

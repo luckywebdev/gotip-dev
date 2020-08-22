@@ -4,6 +4,7 @@ import { bindActionCreators } from "redux";
 import * as Constants from "../../../Constants";
 import styled from 'styled-components';
 import login from '../../../store/actions/login'
+import registration from '../../../store/actions/registration';
 
 const IconImage = styled.img`
   width: 42px;
@@ -12,10 +13,20 @@ const IconImage = styled.img`
 `
 
 class signInFaceBook extends Component {
+  constructor(props){
+    super(props);
+
+  }
 
   handleLogin = () => {
-    const { tryFacebookLogin } = this.props;
-    tryFacebookLogin();
+    if(this.props.type === "signin"){
+      const { tryFacebookLogin } = this.props;
+      tryFacebookLogin();
+    }
+    else{
+      const { tryFacebookSignup } = this.props;
+      tryFacebookSignup();
+    }
   }
 
   render() {
@@ -31,6 +42,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   tryFacebookLogin: bindActionCreators(login.tryFacebookLogin, dispatch),
+  tryFacebookSignup: bindActionCreators(registration.tryFacebookSignup, dispatch),
 });
 
 

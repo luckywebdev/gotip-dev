@@ -84,23 +84,24 @@ class UserMessage extends Component {
   }
 
   render() {
+    const { mainState } = this.props;
+    const theme_color = typeof mainState.user !== 'undefined' && typeof mainState.user.theme_color !== 'undefined' ? mainState.user.theme_color : "#30AA89";
     const contentEditables = this.state.editable ? "true" : "false";
     const editableText = this.state.editable ? "更新する" : "メッセージを編集する";
     let messageEdit = '';
     if(this.props.editable){
       messageEdit = (
         <div className="uk-flex uk-flex-right">
-          { this.state.editable ? '' : <span style={{ fontSize: '12px', color: '#30AA89'}} uk-icon="icon: pencil"></span> }
-          <Anchor decoration="underline" text={editableText} color="#30AA89" fontSize=".8rem" clicked={ this.MessageEdit } />
+          { this.state.editable ? '' : <span style={{ fontSize: '12px', color: theme_color}} uk-icon="icon: pencil"></span> }
+          <Anchor decoration="underline" text={editableText} color={theme_color} fontSize=".8rem" clicked={ this.MessageEdit } />
         </div>
       );
     }
 
-
     return(
       <UserMessageContent>
         <div className="uk-margin uk-text-justify uk-flex uk-flex-between uk-flex-middle">
-          <span className="uk-text-normal uk-text-center uk-text-success">Message</span>
+          <span className="uk-text-normal uk-text-center uk-text-success" style={{color: theme_color}}>Message</span>
           <LineDiv width="80%"></LineDiv>
         </div>
         <MessageBody>

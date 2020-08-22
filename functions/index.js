@@ -1,10 +1,11 @@
 const functions = require('firebase-functions');
 functions.logger.log("example", {a:1, b:2, c:"33", d:{e:4}});
+
 const admin = require('firebase-admin');
 const express = require('express');
 const cors = require('cors');
 
-const serviceAccount = require("./gotip-dev-fab49-service.json");
+const serviceAccount = require("./gotip-dev-firebase-adminsdk.json");
 const profiles = functions.config()
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
@@ -12,7 +13,7 @@ admin.initializeApp({
     authDomain: profiles.dev.domain,
     projectId: profiles.dev.project_id,
     databaseURL: profiles.database_url,
-    storageBucket: 'gotip-dev-fab49.appspot.com'
+    storageBucket: 'gotip-dev.appspot.com'
 })
 
 const db = admin.firestore()
@@ -33,6 +34,22 @@ router.post(
 router.get(
   '/user/:action/:userId',
   require('./api/user').bind(null, admin, db)
+)
+router.post(
+  '/agent/:action',
+  require('./api/agent').bind(null, admin, db)
+)
+router.get(
+  '/agent/:action/:agentId',
+  require('./api/agent').bind(null, admin, db)
+)
+router.post(
+  '/admin/:action',
+  require('./api/admin').bind(null, admin, db)
+)
+router.get(
+  '/admin/:action/:userId',
+  require('./api/admin').bind(null, admin, db)
 )
 router.get(
   '/points/:action',

@@ -1,6 +1,44 @@
 import React from 'react';
 import styled from 'styled-components';
 import classes from './index.css';
+
+const InputDiv = styled.div`
+    width: 100%;
+    box-sizing: border-box;
+`;
+
+const ValidateNote = styled.p`
+    text-align: left;
+    margin: 1px 0;
+    color: red;
+`;
+
+const InputElement = styled.input`
+    box-shadow: none;
+    outline: none;
+    height: 50px;
+    box-sizing: border-box;
+    border-radius: 5px;
+    &:focus {
+        border: 1px solid #707070;
+    }
+`;
+
+const TextAreaElement = styled.textarea`
+    outline: none;
+    font: inherit;
+    display: block;
+    box-sizing: border-box;
+`;
+
+const SelectElement = styled.select`
+    outline: none;
+    font: inherit;
+    display: block; 
+    padding: .8rem !important;
+    box-sizing: border-box;
+`;
+
 const input = (props) => {
     
     let validationError = null;
@@ -19,22 +57,23 @@ const input = (props) => {
     if (props.invalid && props.shouldValidate && props.touched){
       additionalStyle = { ...additionalStyle, border: '1px solid red' };
 
-        validationError = <p className={classes.ValidateNote} >Please enter a valid value!</p>;    
+        validationError = <ValidateNote >Please enter a valid value!</ValidateNote>;    
     }
 
     switch(props.elementType){
         case ('input'):
-            inputElement = <input 
-                className={classes.InputElement}
-                // {...props.elementConfig} 
+            inputElement = <InputElement
+                // {...props.elementConfig}
+                type={props.type}
                 name={props.name}
                 value={props.value}
+                id={props.id}
                 onChange={props.changed}
+                placeholder={props.placeholder}
                 style={additionalStyle} />;
             break;
         case ('textarea'):
-            inputElement = <textarea 
-                className={classes.TextAreaElement}
+            inputElement = <TextAreaElement
                 {...props.elementConfig} 
                 name={props.name}
                 value={props.value}
@@ -42,8 +81,7 @@ const input = (props) => {
                 style={additionalStyle} />;
             break;
         case ('select'):
-            inputElement = <select
-                className={classes.SelectElement}
+            inputElement = <SelectElement
                 value={props.value}
                 {...props.elementConfig}
                 name={props.name}
@@ -54,11 +92,10 @@ const input = (props) => {
                         {option.displayValue}
                     </option>
                 ))}
-            </select>;
+            </SelectElement>;
             break;
         default:
-            inputElement = <input 
-                className={classes.InputElement}
+            inputElement = <InputElement
                 {...props.elementConfig} 
                 name={props.name}
                 value={props.value}
@@ -67,11 +104,11 @@ const input = (props) => {
     }
     
     return(
-        <div className={classes.InputDiv}>
+        <InputDiv>
             {/* <LabelStyle>{props.label}</LabelStyle> */}
             { inputElement }
             { validationError } 
-        </div>
+        </InputDiv>
     );
 }
     

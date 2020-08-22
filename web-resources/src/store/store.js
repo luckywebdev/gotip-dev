@@ -3,6 +3,8 @@ import createSagaMiddleware from 'redux-saga';
 import rootSaga from './sagas/root';
 import reducerLogin from "./reducers/login";
 import reducerMain from "./reducers/main";
+import reducerAdmin from "./reducers/admin";
+import reducerBLE from "./reducers/bleManage";
 import reducerSignup from "./reducers/registration";
 import reducerContact from "./reducers/contact";
 import reducerUserEdit from "./reducers/userEdit";
@@ -18,7 +20,9 @@ function createAppStore () {
     combineReducers({
       login: reducerLogin,
       main: reducerMain,
+      admin: reducerAdmin,
       userEdit: reducerUserEdit,
+      bleManage: reducerBLE,
       contact: reducerContact,
       registration: reducerSignup
     }),

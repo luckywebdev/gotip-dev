@@ -67,9 +67,9 @@ class AdviceSection extends Component {
                         <PhoneImage src={`${Constants.LOCAL_IMAGE_URL}home_phone.png`}  />
                     </RowDiv>
                     <RowDiv direction="column" alignItems="flex-start" justify="center" width="50%" margin="5% 0 0 0">
-                        <Text str={Constants.HOME_ADVICE_TITLE} fontSize="1.2rem" fontSizeL="1rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bold" />
-                        <Text str={Constants.HOME_ADVICE_CONTENT_1} fontSize="1rem" fontSizeL=".8rem" fontSizeM=".6rem" fontSizeS=".5rem" margin="1rem 0" textAlign="left"  />
-                        <Text str={Constants.HOME_ADVICE_CONTENT_2} fontSize="1rem" fontSizeL=".8rem" fontSizeM=".6rem" fontSizeS=".5rem" margin="1rem 0" textAlign="left"  />
+                        <Text str={Constants.LAND_ADVICE_TITLE} fontSize="1.2rem" fontSizeL="1rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bold" />
+                        <Text str={Constants.LAND_ADVICE_CONTENT_1} fontSize="1rem" fontSizeL=".8rem" fontSizeM=".6rem" fontSizeS=".5rem" margin="1rem 0" textAlign="left"  />
+                        <Text str={Constants.LAND_ADVICE_CONTENT_2} fontSize="1rem" fontSizeL=".8rem" fontSizeM=".6rem" fontSizeS=".5rem" margin="1rem 0" textAlign="left"  />
                     </RowDiv>
                 </RowDiv>
                 <BottomCard >
@@ -79,10 +79,10 @@ class AdviceSection extends Component {
                                 <Image src={`${Constants.LOCAL_IMAGE_URL}home_advice_1.png`} height="80%" />
                             </RowDiv>
                             <RowDiv width="100%" height="10%" justify="center" alignItems="flex-start" margin="1rem 0" marginL="0" padding="0">
-                                <Text str={Constants.HOME_ADVICE_CARD_1_TITLE} fontSize="1.2rem" fontSizeL=".9rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bolder" margin="1rem 0"  marginL="0" style={additionalStyle}/>
+                                <Text str={Constants.LAND_ADVICE_CARD_1_TITLE} fontSize="1.2rem" fontSizeL=".9rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bolder" margin="1rem 0"  marginL="0" style={additionalStyle}/>
                             </RowDiv>
                             <RowDiv width="100%" height="40%" justify="flex-start" alignItems="flex-start" margin="1rem 0" marginL="0" padding="0.5rem">
-                                <Text str={Constants.HOME_ADVICE_CARD_1_CONTENT} fontSize=".9rem" fontSizeL=".7rem" fontSizeM=".6rem" fontSizeS=".5rem" marginL="0"  />
+                                <Text str={Constants.LAND_ADVICE_CARD_1_CONTENT} fontSize=".9rem" fontSizeL=".7rem" fontSizeM=".6rem" fontSizeS=".5rem" marginL="0"  />
                             </RowDiv>
                         </CardContainer>
                         <CardContainer>
@@ -90,10 +90,10 @@ class AdviceSection extends Component {
                                 <Image src={`${Constants.LOCAL_IMAGE_URL}home_advice_2.png`} height="80%" />
                             </RowDiv>
                             <RowDiv width="100%" height="10%" justify="center" alignItems="flex-start" padding="0" margin="1rem 0" marginL="0">
-                                <Text str={Constants.HOME_ADVICE_CARD_2_TITLE} fontSize="1.2rem" fontSizeL=".9rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bolder" margin="1rem 0" marginL="0" style={additionalStyle} />
+                                <Text str={Constants.LAND_ADVICE_CARD_2_TITLE} fontSize="1.2rem" fontSizeL=".9rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bolder" margin="1rem 0" marginL="0" style={additionalStyle} />
                             </RowDiv>
                             <RowDiv width="100%" height="40%" justify="flex-start" alignItems="flex-start" margin="1rem 0" marginL="0" padding="0.5rem">
-                                <Text str={Constants.HOME_ADVICE_CARD_2_CONTENT} fontSize=".9rem" fontSizeL=".7rem" fontSizeM=".6rem" fontSizeS=".5rem"  marginL="0" />
+                                <Text str={Constants.LAND_ADVICE_CARD_2_CONTENT} fontSize=".9rem" fontSizeL=".7rem" fontSizeM=".6rem" fontSizeS=".5rem"  marginL="0" />
                             </RowDiv>
                         </CardContainer>
                         <CardContainer>
@@ -101,10 +101,10 @@ class AdviceSection extends Component {
                                 <Image src={`${Constants.LOCAL_IMAGE_URL}home_advice_3.png`} height="80%" />
                             </RowDiv>
                             <RowDiv width="100%" height="10%" justify="center" alignItems="flex-start" padding="0" margin="1rem 0" marginL="0">
-                                <Text str={Constants.HOME_ADVICE_CARD_3_TITLE} fontSize="1.2rem" fontSizeL=".9rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bolder" margin="1rem 0"  marginL="0" style={additionalStyle}/>
+                                <Text str={Constants.LAND_ADVICE_CARD_3_TITLE} fontSize="1.2rem" fontSizeL=".9rem" fontSizeM=".8rem" fontSizeS=".7rem" fontWeight="bolder" margin="1rem 0"  marginL="0" style={additionalStyle}/>
                             </RowDiv>
                             <RowDiv width="100%" height="40%" justify="flex-start" alignItems="flex-start" margin="1rem 0" marginL="0" padding="0.5rem">
-                                <Text str={Constants.HOME_ADVICE_CARD_3_CONTENT} fontSize=".9rem" fontSizeL=".7rem" fontSizeM=".6rem" fontSizeS=".5rem"  marginL="0" />
+                                <Text str={Constants.LAND_ADVICE_CARD_3_CONTENT} fontSize=".9rem" fontSizeL=".7rem" fontSizeM=".6rem" fontSizeS=".5rem"  marginL="0" />
                             </RowDiv>
                         </CardContainer>
                     </RowDiv>

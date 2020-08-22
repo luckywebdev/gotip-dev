@@ -1,3 +1,8 @@
+const nodemailer = require('nodemailer')
+const smtpTransport = require('nodemailer-smtp-transport');
+const profiles = require('firebase-functions').config()
+
+
 let admin
 let db
 module.exports = async function (adminRef, dbRef, req, res) {
@@ -8,11 +13,19 @@ module.exports = async function (adminRef, dbRef, req, res) {
   switch (req.params.action) {
     case 'create' :
       createAccount(req.body)
-      .then(insertAccountInfo.bind(null, req.body))
-      .then(() => {
-        res.send({
-          result: true
-        })
+      .then(async (result) => {
+        console.log("create_result", result);
+        var results = await postContactMail(req.body, result);
+        if(results){
+          res.send({
+            result: true
+          })
+        }
+        else{
+          res.send({
+            result: results
+          })
+        }
       })
       .catch((err) => {
         console.error(err)
@@ -34,6 +47,115 @@ module.exports = async function (adminRef, dbRef, req, res) {
         })
       })
       break
+    case 'check' :
+      const chks = await checkAccount(req.body)
+      .then(result => {
+        console.log("results===>", result);
+        if(result.state){
+          admin.auth().createCustomToken(req.body.uid)
+          .then((customToken) => {
+            res.send({
+              result: true,
+              action: result.action,
+              customToken: customToken,
+              email: result.email,
+              auth_level: result.auth_level
+            })  
+          })
+        }
+        else{
+          if(result.errMessage === "timeout") {
+            admin.auth().deleteUser(req.body.uid)
+            .then(() => {
+              res.send({
+                result: false,
+                action: result.action,
+                message: 'timeout',
+                email: result.email
+              })
+            })
+          }
+          else{
+            res.send({
+              result: false,
+              action: result.action,
+              message: result.errMessage,
+              email: result.email
+            })
+          }
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        res.send({
+          result: false,
+          action: "land",
+          message: '',
+          errorCode: err,
+          email: ''
+        })
+      })
+      break;
+    case 'register' :
+      insertAccountInfo(req.body, {uid: req.body.uid})
+      .then(() => {
+        updateAccountInfo(req.body, req.body.uid)
+        .then(() => {
+          console.log("reg_1====>")
+          res.send({
+            result: true
+          })
+        })
+        .catch((err) => {
+          console.log("reg_2====>", err)
+          res.send({
+            result: false,
+            message: `アカウントを作成できませんでした。エラー：${ err }`,
+          })  
+        })
+      })
+      .catch((err) => {
+        console.log("reg_3====>", err)
+        var errMessage = ''
+        if (typeof err === 'object') switch (err.code) {
+          case 'auth/email-already-exists':
+            errMessage = 'ご入力いただいたメールアドレスは既に登録されています。'
+            break
+          case 'auth/invalid-email':
+            errMessage = 'ご入力いただいたメールアドレスはお使いいただけません。'
+            break
+          default:
+            errMessage = err.code
+        }
+        res.send({
+          result: false,
+          message: `アカウントを作成できませんでした。エラー：${ errMessage }`,
+          errorCode: err.code
+        })
+      })
+      break
+    case 'createbysocial':
+
+      const createTime = new Date();
+      postContactMail({email: req.body.email}, {uid: req.body.uid, createTime: createTime})
+      .then((results) => {
+        if(results){
+          res.send({
+            result: true
+          })
+        }
+        else{
+          res.send({
+            result: results
+          })
+        }
+      })
+      .catch(err => {
+        res.send({
+          result: err
+        })
+      })
+      break;
     case 'modify':
       admin.auth().verifyIdToken(req.body.idToken)
       .then(async (decoded) => {
@@ -80,6 +202,7 @@ module.exports = async function (adminRef, dbRef, req, res) {
       })
       break
     case 'profile':
+      console.log("req_params", req.params);
       var userId = req.params.userId
       var result
       if (userId) result = await getUserProfile(userId)
@@ -98,6 +221,17 @@ module.exports = async function (adminRef, dbRef, req, res) {
         res.send(false)
       })
       break
+    case 'delete':
+      deleteAccount(req.params.userId)
+      .then((result) => {
+        console.log(result)
+        res.send(result)
+      })
+      .catch((err) => {
+        console.error(err)
+        res.send(false)
+      })
+      break
     default:
       res.end()
   }
@@ -105,23 +239,21 @@ module.exports = async function (adminRef, dbRef, req, res) {
 
 function createAccount (body) {
   return new Promise(async (resolve, reject) => {
-    const { email, password, tel, name, userId } = body
+    const { email, password } = body
     if (email && password) {
       const userInformation = {
         email: email,
         emailVerified: false,
         password: password,
-        displayName: name,
         disabled: false
       }
-      if (userId) userInformation.uid = userId
-      if (tel) userInformation.phoneNumber = `+81${ String(tel).replace(/^0./, '') }`
       admin.auth().createUser(userInformation)
       .then((userRecord) =>{
-        console.log(userRecord)
         resolve({
           result: true,
-          uid: userRecord.uid
+          uid: userRecord.uid,
+          createTime: userRecord.metadata.creationTime,
+          lastSignInTime: userRecord.metadata.lastSignInTime
         })
       }).catch((err) => {
         reject(err)
@@ -130,18 +262,74 @@ function createAccount (body) {
   })
 }
 
+function checkAccount(body) {
+  return new Promise(async(resolve, reject) => {
+    try{
+      const userDB = await db.collection('users').doc(body.uid).get()
+      .then(async (doc) => {
+        if(doc.exists){
+          const account = doc.data();
+          resolve({
+            state: true,
+            action: "login",
+            email: doc.email,
+            auth_level: account.auth_level
+          })
+        }
+        else{
+          const userData = await admin.auth().getUser(body.uid);
+          const d = new Date(userData.metadata.creationTime);
+          const createTimeStamp = d.getTime() / 1000;
+          const currentTime = new Date().getTime() / 1000;
+          const oneDayTime = 60 * 60 * 24;
+  
+          if((currentTime - createTimeStamp) <= oneDayTime){
+            resolve({
+              state: true,
+              action: "register",
+              email: userData.email,
+            })
+          }
+          else{
+            resolve({
+              state: false,
+              action: "land",
+              errMessage: "timeout"
+            })
+          }
+        }
+      })
+    }
+    catch(err){
+      reject({
+        state: false,
+        action: "land",
+        errMessage: err
+      })
+    }
+  })
+}
+
 function insertAccountInfo (body, { uid }) {
   return new Promise(async (resolve, reject) => {
     const regData = createRegData(body)
+    const userData = await admin.auth().getUser(uid);
+    regData.email = userData.email;
     regData.premium = false
-    regData.auth_level = 1
-
+    const bankData = {
+      bank_code: body.bank_code || null,
+      branch_code: body.branch_code || null,
+      account_number: body.account_number || null,
+      account_holder: body.account_holder || null
+    }
     const userRef = db.collection('users').doc(uid)
     const pointRef = db.collection('points').doc(uid)
+    const bankRef = db.collection('banks').doc(uid)
     db.runTransaction(async (t) => {
       await t.get(userRef)
       t.set(userRef, regData, { merge: true })
       t.set(pointRef, { data: [], log: [] }, { merge: true })
+      t.set(bankRef, bankData, {merge: true})
     })
     .then(() => {
       resolve(true)
@@ -154,27 +342,51 @@ function createRegData (body) {
   const regData = {
     sex: body.sex || null,
     email: body.email || null,
-    theme_color: body.themeColor || null,
+    theme_color: body.themeColor || "rgba(48, 170, 137, 1)",
     profile: body.profile || "",
-    tel: body.tel || null
+    tel: `+81${ body.tel }` || null,
+    // tel: `+81${ String(body.tel).replace(/^0/, '') }` || null,
+    agent_id: body.agent_id || null,
+    userState: body.userState || 0,
+    auth_level: body.auth_level || 1
   }
-  if (body.name && body.ruby) regData.name = {
+  if (body.nickname) regData.name = {
     value: body.name || null,
     ruby: body.ruby || null,
     nickname: body.nickname || null
   }
-  if (body.birthyear && body.birthmonth && body.birthday) regData.birthdate = {
-    year: body.birthyear,
-    month: body.birthmonth,
-    day: body.birthday
+  if (typeof body.birthdate !== 'undefined' && body.birthdate.year && body.birthdate.month && body.birthdate.day) regData.birthdate = {
+    year: body.birthdate.year,
+    month: body.birthdate.month,
+    day: body.birthdate.day
+  }
+  else{
+    regData.birthdate = {
+      year: "",
+      month: "",
+      day: ""
+    };
+  }
+  if(body.delegate) regData.delegate = {
+    name: body.delegate.name || null,
+    ID_photo: body.delegate.ID_photo || null
+  }
+  if(body.prefecture && body.post_code) regData.address = {
+    value: body.prefecture || null,
+    postal_code: body.post_code || null,
+    county: body.county || null,
+    town: body.town || null,
+    fandi: body.fandi || null,
+    building_room: body.building_room || null
   }
   return regData
 }
+
 function updateAccountInfo (body, uid) {
   return new Promise(async (resolve, reject) => {
     const authInfo = {}
-    if (body.password && body.password.length > 0) authInfo.password = body.password
-    if (body.email && body.email.length > 0) authInfo.email = body.email
+    if (body.email && body.email.length > 0) authInfo.email = body.email;
+    if (body.nickname && body.nickname.length > 0) authInfo.displayName = body.nickname;
     const userRecord = await admin.auth().updateUser(uid, authInfo)
       .catch(error => {
         console.error(error)
@@ -182,8 +394,9 @@ function updateAccountInfo (body, uid) {
       })
     
     const regData = createRegData(body)
-    // regData.premium = false
-    // regData.auth_level = 1
+    const userData = await admin.auth().getUser(uid);
+    regData.email = userData.email;
+    regData.premium = false
     const userRef = db.collection('users').doc(uid)
     db.runTransaction(async (t) => {
       await t.get(userRef)
@@ -218,7 +431,7 @@ function getAccountInfo (uid) {
         resolve(result)
       })
       .catch((err) => {
-        return err
+        reject(err)
       })
     })
     .catch((err) => {
@@ -236,35 +449,60 @@ async function updateConfig (body, uid) {
 }
 
 async function getUserProfile (uid) {
+  const result = {}
   const userRef = db.collection('users').doc(uid)
   const configRef = db.collection('config').doc(uid)
-  let result = { uid }
+  const pointRef = db.collection('points').doc(uid)
+  const bankRef = db.collection('banks').doc(uid)
   await configRef.get()
     .then((doc) => {
       if (doc.exists) {
         const data = doc.data()
-        result.isPublished = data.profile_published ? true : false
+        result.config = data;
       } else {
-        result.isPublished = null
+        result.config = {}
       }
     })
+    .catch(err => {
+      result.error = err;
+    })
+  await pointRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        const data = doc.data()
+        result.pointdata = data
+      } else {
+        result.pointdata = {}
+      }
+  })
+  .catch(err => {
+    result.error = err;
+  })
+
   
   await userRef.get()
     .then((doc) => {
       if (doc.exists) {
         const data = doc.data()
-        console.log('Required Profile Data.', data)
-        
-        result.authLevel = data.authLevel ? data.authLevel : 1
-        if (result.isPublished) {
-          result.profile = data.profile ? data.profile : ''
-          result.profileImgUrl = data.profileImgUrl ? data.profileImgUrl : ''
-          result.nickname = data.name && data.name.nickname ? data.name.nickname : ''
-          result.bleDescription = data.bleDescription ? data.bleDescription : ''
-        }
+        result.account = data
       }
       result.isExists = doc.exists
     })
+    .catch(err => {
+      result.error = err;
+    })
+    await bankRef.get()
+    .then((doc) => {
+      if (doc.exists) {
+        const data = doc.data()
+        result.bank = data
+      }
+      result.isExists = doc.exists
+    })
+    .catch(err => {
+      result.error = err;
+    })
+
   
   return result
 }
@@ -287,6 +525,7 @@ function setUserProfile (userData, uid) {
           if (userData.profileImgUrl) data.profileImgUrl = userData.profileImgUrl
           if (userData.nickname) data.name.nickname = userData.nickname
           if (userData.bleDescription) data.ble_devices = userData.bleDescription
+          if (userData.sns_info) data.sns_info = JSON.parse(JSON.stringify(userData.sns_info))
           
           result.result = await userRef.set(data, { merge: true })
           .then(() => {
@@ -300,5 +539,88 @@ function setUserProfile (userData, uid) {
         result.isExists = doc.exists
         resolve(result)
       })
+  })
+}
+
+async function postContactMail ({ email }, {uid, createTime}) {
+  // return new Promise(async (resolve, reject) => {
+    const d = new Date(createTime);
+    const createTimeStamp = d.getTime() / 1000;
+    const mailBody =
+      `【GoTip 会員登録にお申し込みいただき、誠にありがとうございます。】
+        下記ページより本登録のお手続きをお願いいたします。
+    
+        本登録が完了いたしましたら、ご登録メールアドレス宛に本登録完了のお知らせをメールにてお送りいたします。
+    
+        ■会員登録
+        24時間以内に以下URLより登録を完了させてください。
+        ※24時間を過ぎた場合には無効になり、ますのでご注意ください。
+        その場合はお手数ですがご登録を最初からやり直して頂きますようお願い致します。
+        https://gotip-dev.firebaseapp.com/registration?code=${uid}&time=${createTimeStamp}
+    
+        お問い合わせ
+    
+    
+        ※このメールは、送信専用メールアドレスから配信されています。ご返信いただいてもお答えできませんので、ご了承ください。
+        ※このメールに心当たりがない方、またはご不明な点がある方はGOTIP問い合わせ窓口にお問い合わせください。
+        ※個人情報の取扱いについては個人情報保護方針をご覧下さい。
+      `
+    const mailConfig = {
+      from: 'noreply@gotip-dev.firebaseapp.com',
+      to: email,
+      subject: `【GoTip 会員登録にお申し込みいただき、誠にありがとうございます。】`,
+      text: mailBody
+    }
+    const mailTransport = nodemailer.createTransport({
+      service: "gmail",
+      secure: false,
+      port: 25,
+      auth: {
+        user: 'chloe.jong827@gmail.com',
+        pass: 'xqdmaangadbhfkce' //'chloejong922'
+      }, tls: {
+        rejectUnauthorized: false
+      }
+    })
+  
+    const result = await mailTransport.sendMail(mailConfig)
+    .then(sendResult => {
+      console.log(sendResult)
+      return true
+    })
+    .catch(err => {
+      console.error(err)
+      return false
+    })
+    return result;
+  // })
+}
+
+function deleteAccount (uid) {
+  return new Promise(async (resolve, reject) => {
+    const result = {}
+    const userRef = db.collection('users').doc(uid).delete();
+    const bankRef = db.collection('banks').doc(uid).delete();
+    const pointRef = db.collection('points').doc(uid).delete();
+    if(userRef && bankRef && pointRef){
+      const deleteAccount = await admin.auth().deleteUser(uid)
+      .then(() => {
+        resolve({
+          result: true
+        })
+      })
+      .catch((err) => {
+        reject({
+          result: false,
+          error: "auth"
+        })
+      })
+    }
+    else{
+      reject({
+        result: false,
+        error: "db"
+      })
+    }    
   })
 }

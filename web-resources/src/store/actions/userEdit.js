@@ -10,5 +10,8 @@ export default {
     },
     uploadImage: (imageData) => {
       return {type: 'UPLOAD_PHOTO', payload: imageData}
+    },
+    updateSnsInfo: (sns_info) => {
+      return {type: 'UPDATE_SNS_INFO', payload: sns_info}
     }
   }

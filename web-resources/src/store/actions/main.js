@@ -6,11 +6,22 @@ export default {
   gotipShowSuccess: (show_state) => {
     return { type: 'GoTip_SHOW_SUCCESS', show_state }
   },
+  executeCancelAccount : (uid) => {
+    return { type: 'EXECUTE_CANCEL_ACCOUNT', payload: uid }
+  },
   executeLogout : () => {
     return { type: 'EXECUTE_LOGOUT', payload: null }
   },
   getAccountInfo: (uid) => {
     return { type: 'GET_ACCOUNT_INFO', payload: uid }
+  },
+  getChildAgent: (reqData) => {
+    return { type: 'GET_CHILD_AGENT', payload: reqData }
+  },
+  getOtherAgentAccountInfo: (uid) => {
+    return { type: 'GET_OTHER_AGENT_ACCOUNT_INFO', payload: uid }
+  },
+  getOtherAccountInfo: (uid) => {
+    return { type: 'GET_OTHER_ACCOUNT_INFO', payload: uid }
   }
-
 }

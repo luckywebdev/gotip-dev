@@ -79,7 +79,7 @@ class HomeFooter extends Component {
                     </RowDiv>
                 </RowDiv>
                 <RowDiv width="100%" backcolor="#00BAAE" justify="center">
-                    <Text str={Constants.HOME_COPYRIGHT} fontSize="1.2rem" color="#FFF" margin="1rem 0"  marginL=".3rem 0" marginM="0" textAlign="center"  />
+                    <Text str={Constants.LAND_COPYRIGHT} fontSize="1.2rem" color="#FFF" margin="1rem 0"  marginL=".3rem 0" marginM="0" textAlign="center"  />
                 </RowDiv>
             </MainContainer>
         );

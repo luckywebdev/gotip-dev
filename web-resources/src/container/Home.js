@@ -1,123 +1,69 @@
 import React, { Component } from 'react';
-import { connect } from "react-redux";
 import Aux from '../hoc/Au/Auxx';
-import axios from '../axios-instance';
-import withErrorHandler from '../hoc/WithErrorHandler/WithErrorHandler';
-import { withRouter } from 'react-router-dom';
-import login from '../store/actions/login';
+import { connect } from "react-redux";
+import { bindActionCreators } from "redux";
 
-import Introduction from '../components/Partial/Introduction';
-import AboutSection from '../components/Partial/AboutSection';
-import AdviceSection from '../components/Partial/AdviceSection';
-import PriceSection from '../components/Partial/PriceSection';
-import HomeFooter from '../components/Partial/HomeFooter';
-import Modal from '../components/UI/Modal/Modal';
+import { withRouter } from 'react-router-dom';
+import main from '../store/actions/main';
+import Layout from '../hoc/Layout/Layout';
+import Cover from '../components/UI/Cover'
 import UIkit from 'uikit';
 import UIkitIcons from 'uikit/dist/js/uikit-icons'
 UIkit.use(UIkitIcons)
 
 import styled from 'styled-components';
 import media from 'styled-media-query';
+import LoadingCover from '../components/UI/loadingCover';
+import SideMenu from '../components/SideMenu';
+import HomeMainContent from '../components/Partial/HomeMainContent';
+import HomeColumn from '../components/Partial/HomeColumn';
 
-const HomeContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    /* height: 100vh; */
-    overflow: auto;
+const MainContainer = styled.div`
+  max-width: 75%;
+  width: 75%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  // padding-top: 2%;
+  box-sizing: border-box;
 `;
 
-const TopScrollButton = styled.div`
-    position: fixed;
-    bottom: 5%;
-    right: 5%;
-    width: 3rem;
-    height: 3rem;
-    background-color: #30AA89;
-    color: #FFF;
-    border: none;
-    box-shadow: none;
-    outline: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    &:hover {
-        opacity: 0.8;
-    }
-`;
-
+var loadingMessage = null;
 
 class Home extends Component {
-    constructor(props) {
-        super(props);
-        this.myRef = React.createRef();
-        this.state = {
-            is_visible: false,
-            intervalId: 0,
-        };
-      
-    }
+  constructor(props) {
+    super(props);
+    this.state = {
+        logining: false,
+        errorModal: false,
+        errorMessage: "",
+        menuShowHandler: false,
+    };
+  }
 
-    componentDidMount() {
-        if(localStorage.getItem('isLoggedin')) {
-            this.props.history.push('/main');
-        }
-    }
+  render() {
+    return (
+      <Aux>
+        <LoadingCover  text={ loadingMessage !== null ? loadingMessage : null } />
 
-    scrollStep = (stepSize) => {
-        if (this.myRef.current.scrollTop <= 0) {
-            clearInterval(this.state.intervalId);
-        }
-        if(this.myRef.current.scrollTop > stepSize)
-            this.myRef.current.scrollTo(0, this.myRef.current.scrollTop - stepSize);
-        else {
-            this.myRef.current.scrollTo(0, 0);
-        }
-    }
-  
-    scrollToTop = (stepSize, stepInterval) => {
-        let intervalId = setInterval(this.scrollStep.bind(this, stepSize), stepInterval);
-        this.setState({ intervalId: intervalId });
-    }
-
-    scrollCaptures = () => {
-        if(this.myRef.current.scrollTop >= 50 && !this.state.is_visible){
-            this.setState({
-                is_visible: true
-            });
-        }
-        else if(this.myRef.current.scrollTop <= 50) {
-            this.setState({
-                is_visible: false
-            });
-        }
-    }
-
-    render() {
-        return (
-            <Aux>
-                <div style={{height: '100vh', overflow: 'auto'}} onScrollCapture={this.scrollCaptures} ref={this.myRef}>
-                    <HomeContainer>
-                        <Introduction { ...this.props } />
-                        <AboutSection />
-                        <AdviceSection />
-                        <PriceSection />
-                        <HomeFooter />
-                        {
-                            this.state.is_visible ? (
-                                <TopScrollButton onClick={this.scrollToTop.bind(this, 50, 15)}>
-                                    <span uk-icon="icon: chevron-up; ratio: 2"></span>
-                                </TopScrollButton>
-                            ) : null
-                        }    
-            
-                    </HomeContainer>
-                </div>
-            </Aux>
-        );
-    }
+        <Layout {...this.props} >
+            <MainContainer>
+                <SideMenu />
+                <HomeMainContent />
+                <HomeColumn />
+            </MainContainer>
+        </Layout>
+      </Aux>
+    );
+  }
 }
-  
-export default withErrorHandler(withRouter(Home), axios);
+
+const mapDispatchToProps = (dispatch) => ({
+  gotipShow: bindActionCreators(main.gotipShow, dispatch),
+  getAccountInfo: bindActionCreators(main.getAccountInfo, dispatch),
+  executeLogout: bindActionCreators(main.executeLogout, dispatch),
+});
+
+
+export default connect(null, mapDispatchToProps)(withRouter(Home));

@@ -4,6 +4,7 @@ import media from 'styled-media-query';
 
 const BreakableSpan = styled.span`
   white-space: pre-line;
+  width: ${ props => `${props.data.width ? props.data.width : 'auto'}` };
   color: ${ props => `${props.data.color ? props.data.color : '#000'}` };
   margin: ${ props => `${props.data.margin ? props.data.margin : '0'}` };
   font-size: ${ props => `${props.data.fontSize ? props.data.fontSize : 'inherit'}` };
@@ -33,11 +34,6 @@ const BreakableSpan = styled.span`
 export default (props) => {
   let text = typeof props.str === 'string' ? props.str : ''
   return (
-    <BreakableSpan data={props} style={ props.style }>{ text }</BreakableSpan>
-    // <span>
-    //   { text ? text.split(/¥r¥n|¥r|¥n/).map((chunk, i) => {
-    //     return <React.Fragment key={ i }>{ chunk }<br /></React.Fragment>
-    //   }) : '' }
-    // </span>
+    <BreakableSpan data={props} id={props.id} style={ props.style }>{ text }</BreakableSpan>
   )
 }

@@ -1,6 +1,6 @@
 import { call, put, fork, take } from 'redux-saga/effects'
 import axios from 'axios'
-import alertErrorMessage from './commonAlert'
+import { alertErrorMessage } from './commonAlert'
 
 
 export default function* handlePostContactMail () {

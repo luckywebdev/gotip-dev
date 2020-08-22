@@ -5,6 +5,9 @@ export default {
   tryLogin: (email, password, isKeepLogin) => {
     return { type: 'TRY_LOGIN', payload: { email, password, isKeepLogin } }
   },
+  tryLoginByToken: (token) => {
+    return { type: 'TRY_LOGIN_BY_TOKEN', payload: { token } }
+  },
   trySendRequest: (email) => {
     return { type: 'TRY_SEND_REQUEST', payload: { email } }
   },
@@ -13,5 +16,8 @@ export default {
   },
   tryFacebookLogin: () => {
     return { type: 'TRY_FACEBOOK_LOGIN', payload: { } }
+  },
+  tryTwitterLogin: () => {
+    return { type: 'TRY_TWITTER_LOGIN', payload: { } }
   }
 }

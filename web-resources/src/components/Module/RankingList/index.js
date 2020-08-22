@@ -91,7 +91,7 @@ class RankingList extends Component {
   
   render() {
     return(
-      <Card width="100%" margin="2%">
+      <Card width="100%" margin="1%">
         <h4 className="uk-text-bold">視聴者ランキング</h4>
         <UlStyle className="uk-list">
           <li>

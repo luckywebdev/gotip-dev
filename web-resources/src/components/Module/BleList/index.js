@@ -1,4 +1,14 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import * as Constants from '../../../Constants';
+import bleManage from '../../../store/actions/bleManage';
+import Sync from './sync';
+import Mabeee from './mabeee';
+import MagicMotion from './magicMotion';
+import Lovense from './lovense';
+import Egg from './egg';
+import Vorze from './vorze';
+
 import UIkit from 'uikit'
 import UIkitIcons from 'uikit/dist/js/uikit-icons'
 UIkit.use(UIkitIcons)
@@ -12,14 +22,18 @@ import Div from '../../UI/div';
 import Modal from '../../UI/Modal/Modal';
 
 const UlStyle = styled.ul`
-  width: 95%;
+  width: 90%;
   margin: auto;
   padding: 0;
-  &>li {
-    width: 100%;
+  list-style: none;
+  max-height: 150px;
+  overflow-y: auto;
+  li {
+    width: 99%;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-bottom: .5rem;
   }
 `
 const BLEDeviceEditSection = styled.div`
@@ -33,85 +47,240 @@ const ModalTitle = styled.div`
   font-weight: bolder;
   margin-top: 2%;
 `
+const ErrorMsg = styled.div`
+  color: red;
+`;
 
-const BLEDeviceList = [
-  {DeviceName: "Bluetooth機器001", DeviceId: 1},
-  {DeviceName: "Bluetooth機器002", DeviceId: 2},
-  {DeviceName: "Bluetooth機器003", DeviceId: 3},
-]
+let dispatch;
+var connectingBLE = '';
 
-class BleList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      showEditableModal: false
+export default (props) => {
+  // bleMod = new blem();
+  dispatch = useDispatch();
+  const mainState = useSelector( state => state.main );
+  const bleState = useSelector( state => state.bleManage );
+  const [settingModal, setSettingModal] = useState('connecting');
+  const theme_color = typeof mainState.user !== 'undefined' && typeof mainState.user.theme_color !== 'undefined' ? mainState.user.theme_color : "#30AA89";
+  const [connectedBle, setConnectedBle] = useState([]);
+  const [stateValue, setStateValue] = useState({showEditableModal: false, showAddModal: false, showSettingModal: false, searched: false, connected: false, device: ''});
+
+  useEffect(() => {
+    if(bleState.device_list.length > 0){
+      setConnectedBle(connectedBle => [connectedBle, ...bleState.device_list]);
     }
-  }
+  }, [bleState.device_list.length])
 
-  EditableChange = () => {
-    this.setState({
-      showEditableModal: !this.state.showEditableModal
+  const EditableChange = () => {
+    setStateValue({...stateValue,
+      showEditableModal: !stateValue.showEditableModal
     });
   }
+  const AddChange = () => {
+    if(stateValue.showAddModal){
+      setStateValue({...stateValue,
+        showAddModal: !stateValue.showAddModal,
+        searched: false,
+        connected: false
+      });
+    }
+    else{
+      setStateValue({...stateValue, showAddModal: !stateValue.showAddModal})
+    }
+  }
 
-  render() {
-    let edit = '';
-    if(this.props.editable){
-      edit = (
-        <Anchor margin="0" decoration="underline" text="変更する" color="#30AA89" fontSize=".8rem" clicked={this.EditableChange} />
-      );
+  const BLEDeviceSearchHandler = () => {
+    setStateValue({...stateValue, searched: true});
+  }
+
+  const BLEConnectingHandler = (device) => {
+    console.log("bleConnecting", settingModal, device);
+    setStateValue({...stateValue, device: device, connected: true});
+    switch(device){
+      case "We-Vibe Sync":
+        connectingBLE = (<Sync SettingChange={SettingChange} settingModal={settingModal} device={ device } />) // bleMod.GNUuidStrs.SY_READ_RN;
+        break;
+      case "MaBeee":
+        connectingBLE =  (<Mabeee SettingChange={SettingChange} settingModal={settingModal} device={ device } />) // bleMod.GNUuidStrs.MB_LNAME_RW;
+        break;
+      case "MagicMotion":
+        connectingBLE = (<MagicMotion SettingChange={SettingChange} settingModal={settingModal} device={ device } />) //bleMod.GNUuidStrs.MM_MNAME_R;
+        break;
+      case "Lovense":
+        connectingBLE = (<Lovense SettingChange={SettingChange} settingModal={settingModal} device={ device } />) //bleMod.GNUuidStrs.LS_READ_N;
+        break;
+      case "Egg":
+        connectingBLE = (<Egg SettingChange={SettingChange} settingModal={settingModal} device={ device } />) //bleMod.GNUuidStrs.EG_CHAR1_RWN;
+        break;
+      case "Vorze":
+        connectingBLE = (<Vorze SettingChange={SettingChange} settingModal={settingModal} device={ device } />) //bleMod.GNUuidStrs.VZ_COMM_W;
+        break;
+      default:
+        break;
+    }
+  }
+
+  const SettingChange = () => {
+    setStateValue({...stateValue,
+      showAddModal: false,
+      searched: false,
+      connected: false
+    });
+  setSettingModal('connecting');
+  }
+
+  const showSettingModal = (deviceName) => {
+    setSettingModal('setting');
+    setStateValue({...stateValue, connected: true, device: deviceName, showAddModal: true});
+    switch(deviceName){
+      case "We-Vibe Sync":
+        connectingBLE = (<Sync SettingChange={SettingChange} settingModal={settingModal} device={ deviceName } />) // bleMod.GNUuidStrs.SY_READ_RN;
+        break;
+      case "MaBeee":
+        connectingBLE =  (<Mabeee SettingChange={SettingChange} settingModal={settingModal} device={ deviceName } />) // bleMod.GNUuidStrs.MB_LNAME_RW;
+        break;
+      case "MagicMotion":
+        connectingBLE = (<MagicMotion SettingChange={SettingChange} settingModal={settingModal} device={ deviceName } />) //bleMod.GNUuidStrs.MM_MNAME_R;
+        break;
+      case "Lovense":
+        connectingBLE = (<Lovense SettingChange={SettingChange} settingModal={settingModal} device={ deviceName } />) //bleMod.GNUuidStrs.LS_READ_N;
+        break;
+      case "Egg":
+        connectingBLE = (<Egg SettingChange={SettingChange} settingModal={settingModal} device={ deviceName } />) //bleMod.GNUuidStrs.EG_CHAR1_RWN;
+        break;
+      case "Vorze":
+        connectingBLE = (<Vorze SettingChange={SettingChange} settingModal={settingModal} device={ deviceName } />) //bleMod.GNUuidStrs.VZ_COMM_W;
+        break;
+      default:
+        break;
     }
 
-    return(
-      <Card width="100%" margin="1%">
-        <h4 className="uk-text-bold uk-flex uk-flex-between uk-flex-middle"><span>現在使用中のBLE機器</span> { edit }</h4>
-        <UlStyle className="uk-list">
-          <li>
-            <Text fontSize=".7rem" str="アイテム名が入ります"></Text>
-            <Btn color="#FFF" fontSize=".7rem" border="none" backcolor="#30AA89" radius="20px" btnType="rounded" text="接続中" />
-          </li>
-          <li>
-            <Text fontSize=".7rem" str="アイテム名が入ります"></Text>
-            <Btn radius="20px" fontSize=".7rem" btnType="rounded" text="未接続" disabled />
-          </li>
-          <li>
-            <Text fontSize=".7rem" str="アイテム名が入ります"></Text>
-            <Btn radius="20px" fontSize=".7rem" btnType="rounded" text="未接続" disabled />
-          </li>
+    console.log("settingModal", settingModal, stateValue.device);
+    // AddChange();
+  }
+
+  const bleItemCheck = (item) => {
+    let f;
+    var filteredElements = connectedBle.filter((ble, index) => { f = index; return ble.device_name === item; });
+    if (!filteredElements.length) {
+        return false;
+    }
+    else{
+      return true;
+    }
+  }
+
+  const searchingBLE = (
+      <div>
+        <ModalTitle>{Constants.BLE_CONNECT}</ModalTitle>
+         <Div width="100%" margin="1rem 0rem" padding="0" justify="center">
+            <Text str={Constants.BLE_ADD_INSTRUCTION} width="100%" color="#313131" />
+          </Div>
+
+          {
+            stateValue.searched ? (
+              <BLEDeviceEditSection style={{border: "1px solid #313131", padding: ".8rem 1rem"}} >
+                {
+                  Constants.BLE_DEVICE_LIST.map(item => {
+                    return (
+                      <Div width="90%" margin=".1rem auto" padding=".5rem" justify="space-between" key={item.DeviceId}>
+                        <Div width="70%" margin="0rem" padding="0" justify="flex-start">
+                          <Text str={item.DeviceName} color="#313131"></Text>
+                        </Div>
+                        <Div width="30%" margin="0rem" padding="0" justify="flex-end">
+                          <Anchor href="#" decoration="none" color={theme_color} text={Constants.CONNECTING} clicked={() => BLEConnectingHandler(item.DeviceName)} />
+                        </Div>
+                      </Div>
+                    )
+                  })
+                }
+              </BLEDeviceEditSection>
+            ) : (
+              <Div width="100%" margin="1rem 0rem" padding="0" justify="center">
+                <Btn padding=".5rem 1rem" fontSize="1rem" backcolor={theme_color} text={Constants.DEVICE_CONNECT} onClick={() => BLEDeviceSearchHandler() } />
+                <ErrorMsg id="onGNError"></ErrorMsg>
+              </Div>
+            )
+          }
+      </div>
+    )
+
+    let edit = '';
+    let add = '';
+    if(props.editable){
+      edit = (
+        <Anchor margin="0" decoration="underline" text={Constants.CHANGE} color={theme_color} fontSize=".8rem" clicked={EditableChange} />
+      );
+      add = (
+        <Btn fontSize=".8rem" btnType="rounded" margin="0" backcolor={theme_color} border="none" padding=".5rem 1rem" text={Constants.ADD_DEVICE} onClick={AddChange} />
+        );
+    }
+
+    const bleTitle = (typeof mainState.user !== 'undefined' && Object.keys(mainState.user).length !== 0 && mainState.user.constructor === Object) ? mainState.user.name.nickname + "の所有機器一覧" : "BLE機器一覧"
+    return (
+      <Card width="100%" margin="10px" height="300px">
+        <h4 className="uk-text-bold uk-flex uk-flex-between uk-flex-middle"><span>{bleTitle}</span> { edit }</h4>
+        <UlStyle>
+          {
+            Constants.BLE_DEVICE_LIST.map(item => {
+              return (
+                <li key={item.DeviceId}>
+                  <Text fontSize=".7rem" str={item.DeviceName}></Text>
+                  <span>
+                    {props.editable ? (<span uk-icon="cog" onClick={(connectedBle.length > 0 && bleItemCheck(item.DeviceName)) ? () => showSettingModal(item.DeviceName) : null}></span>) : ''}
+                    {
+                      (connectedBle.length > 0 && bleItemCheck(item.DeviceName)) ? (
+                        <Btn color="#FFF" fontSize=".7rem" backcolor="transparent" margin="0 0 0 .5rem" border={`1px solid ${theme_color}`} color={theme_color} radius="5px" btnType="rounded" text="接続中" />
+                      ) : (
+                        <Btn radius="5px" fontSize=".7rem" btnType="rounded" margin="0 0 0 .5rem" text="未接続" disabled />
+                      )
+                    }
+                  </span>
+                </li>
+              )
+            })
+
+          }
         </UlStyle>
-        <Modal width="50%" show={this.state.showEditableModal} modalClosed={this.EditableChange}>
-          <ModalTitle>現在使用中のBLE機器</ModalTitle>
+        <div className="uk-flex uk-flex-center" style={{position: 'absolute', bottom: '20px', left: "50%", transform: "translateX(-50%)"}}>
+          { add }
+        </div>
+
+        <Modal width="50%" show={stateValue.showAddModal} modalClosed={AddChange}>
+          {
+            stateValue.connected ? connectingBLE : searchingBLE
+          }
+        </Modal>
+
+        <Modal width="50%" show={stateValue.showEditableModal} modalClosed={EditableChange}>
+          <ModalTitle>{Constants.BLE_LIST_TITLE}</ModalTitle>
           <BLEDeviceEditSection>
             {
-              BLEDeviceList.map(item => {
+              Constants.BLE_DEVICE_LIST.map(item => {
                 return (
                   <Div width="90%" margin=".1rem auto" padding=".5rem" justify="space-between" key={item.DeviceId}>
                     <Div width="70%" margin="0rem" padding="0" justify="flex-start">
                       <Text str={item.DeviceName} color="#313131"></Text>
                     </Div>
                     <Div width="30%" margin="0rem" padding="0" justify="flex-end">
-                      <Anchor href="#" decoration="none" color="#9B9B9B" text="削除する" />
+                      <Anchor href="#" decoration="none" color="#9B9B9B" text={Constants.DELETE} />
                     </Div>
                   </Div>
                 )
               })
             }
             <Div width="100%" margin="1rem 0rem" padding="0" justify="center">
-              <Anchor href="#" decoration="none" color="#30AA89" text="新しい機器を追加する" />
+              <Anchor href="#" decoration="none" color={theme_color} text="新しい機器を追加する" />
             </Div>
             <DivideLine width="80%" />
           </BLEDeviceEditSection>
 
           <div className="uk-flex uk-flex-center uk-margin-top">
-            <Btn width="25%" radius="20px" backcolor="#30AA89" padding=".5rem 2rem" margin="1.5rem auto .5rem auto" text="更新する" btnType="rounded" />
+            <Btn width="25%" radius="20px" backcolor={theme_color} padding=".5rem 2rem" margin="1.5rem auto .5rem auto" text={Constants.UPDATE_CONTENT} btnType="rounded" />
           </div>
         </Modal>
-
-
       </Card>
-    )
-  }
+    );
 
 }
 
-export default BleList;
+// export default BleList;

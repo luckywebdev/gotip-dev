@@ -17,6 +17,7 @@ export default (state = initialState, action) => {
       newState = {
         user : {
           uid: action.payload.uid,
+          auth_level: action.payload.auth_level,
           isVerified: action.payload.isVerified,
         },
         failedCount: 0,

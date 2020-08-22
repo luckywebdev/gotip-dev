@@ -3,7 +3,8 @@ import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 import * as Constants from "../../../Constants";
 import styled from 'styled-components';
-import login from '../../../store/actions/login'
+import login from '../../../store/actions/login';
+import registration from '../../../store/actions/registration';
 
 const IconImage = styled.img`
   width: 42px;
@@ -12,10 +13,20 @@ const IconImage = styled.img`
 `
 
 class signInGoogle extends Component {
+  constructor(props){
+    super(props);
+
+  }
 
   handleLogin = () => {
-    const { tryGoogleLogin } = this.props;
-    tryGoogleLogin();
+    if(this.props.type === "signin"){
+      const { tryGoogleLogin } = this.props;
+      tryGoogleLogin();
+    }
+    else{
+      const { tryGoogleSignup } = this.props;
+      tryGoogleSignup();
+    }
   }
 
   render() {
@@ -31,6 +42,7 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = (dispatch) => ({
   tryGoogleLogin: bindActionCreators(login.tryGoogleLogin, dispatch),
+  tryGoogleSignup: bindActionCreators(registration.tryGoogleSignup, dispatch),
 });
 
 

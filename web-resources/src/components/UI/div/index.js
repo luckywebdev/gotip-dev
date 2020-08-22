@@ -44,7 +44,7 @@ const StyleDiv = styled.div`
 
 const div = (props) => {
   return (
-    <StyleDiv data={props}> 
+    <StyleDiv data={props} style={props.style}> 
       { props.children }
     </StyleDiv>
   )

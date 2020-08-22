@@ -1,6 +1,6 @@
 import { call, put, fork, take } from 'redux-saga/effects';
 import UIkit from 'uikit'
-import alertErrorMessage from './commonAlert'
+import { alertErrorMessage } from './commonAlert'
 import axios from 'axios'
 
 
@@ -29,15 +29,24 @@ async function updatePersonalInfo (firebase, userData) {
         try {
           firebase.auth().currentUser.getIdToken(true)
           .then(async (idToken) => {
+            let sendData = null;
             const params = new URLSearchParams()
             params.append('idToken', idToken)
             if (userData) {
-              Object.keys(userData).forEach(key => {
-                params.append(key, userData[key])
-              })
+              if(userData.sns_info){
+                userData.idToken = idToken;
+                sendData = userData;
+              }
+              else{
+                Object.keys(userData).forEach(key => {
+                  params.append(key, userData[key])
+                })
+                sendData = params;
+              }
+
             }
     
-            const response = await axios.post('/api/user/setprofile', params)
+            const response = await axios.post('/api/user/setprofile', sendData)
               .catch((err) => {
                 console.error(err)
               })
@@ -138,4 +147,5 @@ export default function* (firebaseRef) {
   yield fork(handleUpdatePersonalInfo)
   yield fork(handleChangeState)
   yield fork(handleUploadImage)
+  // yield fork(handleUpdateSnsInfo)
 }

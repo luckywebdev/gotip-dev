@@ -2,7 +2,48 @@ import React, { Component } from 'react';
 
 import Aux from '../../../hoc/Au/Auxx';
 import Backdrop from '../Backdrop/Backdrop';
-import classes from './Modal.css';
+import styled from 'styled-components';
+
+const StyleModal = styled.div`
+    position: fixed;
+    z-index: 10000;
+    background-color: white;
+    border: 1px solid #ccc;
+    box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, 0.2), 1px 5px 20px 1px rgba(0, 0, 0, 0.19);
+    min-height: 40vh;    
+    height: auto;
+    padding: 16px;
+    padding-bottom: 2rem;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) !important;
+    box-sizing: border-box;
+    transition: all 0.5s ease-out;
+    @media (max-width: 1320px){
+        width: 50% !important;
+    }
+    @media screen and (max-width: 980px){
+        width: 70% !important;
+    }
+`;
+
+const CloseButton = styled.span`
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer;
+    &:hover {
+        opacity: .9;
+        color: #999;    
+    }
+    span{
+        font-size: 2rem;
+        font-weight: bolder;
+        color: #CCC;
+    }
+`;
 
 class Modal extends Component {
     constructor(props) {
@@ -25,14 +66,14 @@ class Modal extends Component {
         return(
             <Aux>
                 <Backdrop show={this.props.show} clicked={this.props.modalClosed}/>
-                <div className={classes.StyleModal}
+                <StyleModal
                     style={additionalStyle}
                  >
-                    <span className={classes.CloseButton} onClick={this.props.modalClosed}>
+                    <CloseButton onClick={this.props.modalClosed}>
                         <span uk-icon="icon: close"></span>
-                    </span>
+                    </CloseButton>
                     {this.props.children}
-                </div>
+                </StyleModal>
             </Aux>
         );
     }

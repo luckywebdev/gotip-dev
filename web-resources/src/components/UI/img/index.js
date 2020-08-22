@@ -6,6 +6,7 @@ const Image = styled.img`
   display: inline-block;
   border: none;
   padding: 0;
+  border-radius: ${ props => `${ props.data.radius ? props.data.radius : '' }` };
   margin: ${ props => `${ props.data.margin ? props.data.margin : '' }` };
   height: ${ props => `${ props.data.height ? props.data.height : '100%' }` };
   width: ${ props => `${ props.data.width ? props.data.width : '' }` };

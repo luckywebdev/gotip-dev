@@ -83,7 +83,19 @@ const MenuContent = styled.div`
     }
   }
 `;
-
+const buttonStyle = {
+    backgroundColor: 'transparent',
+    border: '1px solid #30AA89',
+    color: '#30AA89',
+    boxShadow: 'none',
+    borderRadius: '5px',
+    padding: '.1rem .5rem',
+    marginLeft: '1rem',
+    cursor: 'pointer',
+    outline: 'none'
+  }
+  
+  
 
 const menuList = [
     {
@@ -115,7 +127,6 @@ class Introduction extends Component {
     }
 
     componentDidMount() {
-        console.log(this.props.location, this.props.match);
         if(typeof this.props.match.params.login !== 'undefined') {
             this.setState({
                 loginModal: true
@@ -124,11 +135,20 @@ class Introduction extends Component {
     }
 
     componentDidUpdate() {
-        const { loginState } = this.props;
+        const { loginState, mainState } = this.props;
         if(loginState.isLoading){
-          localStorage.setItem('isLoggedin', true);
-          localStorage.setItem('uid', loginState.user.uid);
-          this.props.history.push('/main');
+            localStorage.setItem('isLoggedin', true);
+            localStorage.setItem('uid', loginState.user.uid);
+            console.log("login_main", loginState);
+            if(loginState.user && loginState.user.auth_level < 3){
+                this.props.history.push('/main');
+            }
+            else if(loginState.user && loginState.user.auth_level === 3){
+                this.props.history.push('/admin/top/news');
+            }
+            else if(loginState.user && loginState.user.auth_level === 4){
+                this.props.history.push('/admin/top/news');
+            }
         }
     }
 
@@ -188,23 +208,8 @@ class Introduction extends Component {
                         <Btn text={Constants.LOGIN} backcolor="#FFF" width="15%" padding="0.5rem" color="#30AA89" widthL="20%" widthS="30%" fontWeight="bold" fontSizeL=".8rem" fontSizeM=".6rem" fontSizeS=".5rem" marginL="0" onClick={ this.LoginModalHandler } />
                     </RowDiv>
                     <RowDiv width="10%" justify="flex-end" direction="row" height="100%" paddingS="0.2rem">
-                        <Btn backcolor="transparent" width="100%" padding="0" marginL="0" color="#30AA89" onClick={this.DropDownMenuHandler} fontWeight="bold" >
-                            <span uk-icon="icon: menu; ratio: 2"></span>
-                        </Btn>
+                        <button type="button" uk-toggle="target: #offcanvas-slide" style={buttonStyle}><span uk-icon="menu"></span></button>
                     </RowDiv>
-                    <MenuContent id="menu_content" style={{height: this.state.menuShowHandler ? '200px' : "0px"}} >
-                      <div>
-                        {
-                          menuList.map((item, index) => {
-                              return(
-                                <span key={`${index}-menu`}>
-                                  <Anchor text={ item.name }  />
-                                </span>
-                              )
-                          })
-                        }
-                      </div>
-                    </MenuContent>
                 </RowDiv>
                 <RowDiv direction="column" justify="flex-start" alignItems="flex-start" width="100%" height="30%" padding="0 1rem">
                     <RowDiv direction="column" justify="flex-start" alignItems="center" width="40%" margin="0 0 0 10%" height="100%">
@@ -214,10 +219,10 @@ class Introduction extends Component {
                 </RowDiv>
                 <RowDiv direction="column" justify="flex-start" alignItems="flex-start" width="100%" height="30%" padding="0 1rem">
                     <RowDiv direction="row" justify="flex-start" width="40%" margin="0 0 0 10%" paddingL="0.8rem 1rem">
-                        <Text str={Constants.HOME_INTRODUCTION_TITLE} color="#FFF" fontSize="2rem" fontSizeL="1.5rem" fontSizeM="1rem" fontSizeS=".8rem"  />
+                        <Text str={Constants.LAND_INTRODUCTION_TITLE} color="#FFF" fontSize="2rem" fontSizeL="1.5rem" fontSizeM="1rem" fontSizeS=".8rem"  />
                     </RowDiv>
                     <RowDiv direction="row" justify="center" width="40%" margin="0 0 0 10%" paddingL="0 1rem">
-                        <Text str={Constants.HOME_INTRODUCTION} color="#FFF" fontSize="1.5rem" fontSizeL="1rem" fontSizeM=".8rem" fontSizeS=".5rem" />
+                        <Text str={Constants.LAND_INTRODUCTION} color="#FFF" fontSize="1.5rem" fontSizeL="1rem" fontSizeM=".8rem" fontSizeS=".5rem" />
                     </RowDiv>
                 </RowDiv>
                 <RowDiv direction="row" justify="flex-start" height="22%">
@@ -239,6 +244,7 @@ class Introduction extends Component {
 
 const mapStateToProps = (state) => ({
     loginState: state.login,
+    mainState: state.main,
     allState: state
 });
   

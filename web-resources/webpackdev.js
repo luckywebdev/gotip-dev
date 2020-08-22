@@ -8,7 +8,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin'
 import CopyWebpackPlugin from 'copy-webpack-plugin' 
 
 export default {
-  mode: 'production',
+  mode: 'development',
   entry: ['@babel/polyfill', src + '/index.js'],
 
   output: {
@@ -48,13 +48,13 @@ export default {
           },
           {
             loader: 'css-loader',
-            options: {
-              modules: true,
-              importLoaders: 1,
-              modules: {
-                localIdentName: '[name]__[local]__[hash:base64:7]'
-              }
-            }
+            // options: {
+            //   modules: true,
+            //   importLoaders: 1,
+            //   modules: {
+            //     localIdentName: '[name]__[local]__[hash:base64:7]'
+            //   }
+            // }
           }
         ]
       }

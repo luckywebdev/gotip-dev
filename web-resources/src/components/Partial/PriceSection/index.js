@@ -91,8 +91,8 @@ class PriceSection extends Component {
                 <RowDiv direction="column" width="100%">
                     <RowDiv direction="column" alignItems="center" justify="center" width="60%">
                         <Image src={`${Constants.LOCAL_IMAGE_URL}go_tip_top_text5.png`} margin="3rem 1rem 2rem 1rem" />
-                        <Text str={Constants.HOME_PRICE_TITLE} fontSize="1.6rem" fontWeight="bold" />
-                        <Text str={Constants.HOME_PRICE_CONTENT} fontSize="1.5rem" margin="3rem 0" textAlign="center"  />
+                        <Text str={Constants.LAND_PRICE_TITLE} fontSize="1.6rem" fontWeight="bold" />
+                        <Text str={Constants.LAND_PRICE_CONTENT} fontSize="1.5rem" margin="3rem 0" textAlign="center"  />
                     </RowDiv>
                 </RowDiv>
                 <RowDiv direction="row" width="75%" alignItems="flex-start" justify="space-around">
@@ -114,7 +114,7 @@ class PriceSection extends Component {
                             }
                         </StyledUl>
                         <RowDiv justify="flex-end" width="100%" padding="0" margin="0">
-                            <Text str={Constants.HOME_PRICE_BOTTOM_TEXT} fontSize=".8rem" color="#898989" textAlign="right" />
+                            <Text str={Constants.LAND_PRICE_BOTTOM_TEXT} fontSize=".8rem" color="#898989" textAlign="right" />
                         </RowDiv>
 
                     </RowDiv>
