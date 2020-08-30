@@ -102,7 +102,9 @@ export const SIGNUP_RETRY = "メールが届かない場合";
 export const SIGNUP_FAN_COMPLETE = "完了しました！";
 export const SIGNUP_FAN_COMPLETE_ADVICE = "さっそくチップをして遊んでみましょう！";
 export const SIGNUP_STEP_TITLE = "クリエイターとして始める";
-export const SIGNUP_TEMP_REGISTRATION = "仮登録完了";
+export const SIGNUP_TEMP_REGISTRATION1 = "GOTIPへようこそ！";
+export const SIGNUP_TEMP_REGISTRATION2 = "アカウントの仮登録が完了しました";
+export const SIGNUP_TEMP_REGISTRATION3 = "GOTIPを利用する前に下記の内容をご確認の上同意をお願いします";
 export const SIGNUP_1_TITLE = "ニックネーム登録";
 export const SIGNUP_1_NICKNAME = "ニックネーム";
 export const SIGNUP_1_EMAIL = "メールアドレス";
@@ -140,7 +142,7 @@ export const SIGNUP_3_DISABILITY = "障害者手帳";
 export const SIGNUP_3_RESIDENCE = "在留カード（外国国籍を持つ方の場合）";
 export const SIGNUP_3_HEALTH_CARD = "健康保険証 + 住民票または国民年金手帳";
 export const SIGNUP_4_TITLE = "銀行口座登録";
-export const SIGNUP_4_BANK_CODE = "金融機関コード";
+export const SIGNUP_4_BANK_CODE = "金融コード";
 export const SIGNUP_4_BRANCH_CODE = "支店コード";
 export const SIGNUP_4_ACCOUNT_NUMBER = "口座番号";
 export const SIGNUP_4_ACCOUNT_HOLDER = "口座名義人（全角カタカナ）";
@@ -198,27 +200,27 @@ export const ADMIN_SIDE_MENU_LIST = [
       },
       {
         name: 'ユーザー管理',
-        url: '/user_management',
+        url: '/userManage',
         allowdLevel: '0',
       },
       {
         name: 'スカウト',
-        url: '/scout',
+        url: '', // scout
         allowdLevel: '0',
       },
       {
         name: '問い合わせ',
-        url: '/inquiry',
+        url: '',  // inquiry
         allowdLevel: '0',
       },
       {
         name: '顧客データ',
-        url: '/customer_data',
+        url: '',  // customer_data
         allowdLevel: '0',
       },
       {
         name: 'GOTIP通知',
-        url: '/notification',
+        url: '',  // notification
         allowdLevel: '0',
       }
     ]
@@ -240,7 +242,7 @@ export const ADMIN_SIDE_MENU_LIST = [
         allowdLevel: '2',
       },
       {
-        name: 'アプリケーション管理',
+        name: '申請管理',
         url: '/application',
         allowdLevel: '2',
       },
@@ -263,25 +265,51 @@ export const ADMIN_SIDE_MENU_LIST = [
   },
   {
     name: 'クリエイター管理',
-    url: '/home',
+    url: '/admin/creator',
     allowdLevel: '3',
-    child: []
+    child: [
+      {
+        name: 'クリエイター新規登録',
+        url: '/register',
+        allowdLevel: '3',
+      },
+      {
+        name: 'クリエイター検索',
+        url: '/searchCreator',
+        allowdLevel: '3',
+      },
+      {
+        name: 'オンラインー覧',
+        url: '/onlineCreator',
+        allowdLevel: '3',
+      },
+      {
+        name: '月間売上',
+        url: '/saleCreator',
+        allowdLevel: '3',
+      },
+      {
+        name: 'クリエイター報酬',
+        url: '/compensation',
+        allowdLevel: '3',
+      }
+    ]
   },
   {
     name: '売り上げ',
-    url: '/home',
+    url: '',
     allowdLevel: '3',
     child: []
   },
   {
     name: '機器案内',
-    url: '/home',
+    url: '',
     allowdLevel: '3',
     child: []
   },
   {
     name: 'ユーザー管理',
-    url: '/home',
+    url: '',
     allowdLevel: '3',
     child: []
   }
@@ -422,6 +450,16 @@ export const EARNED_SUBSCRIPTION_POINT = "獲得したサブスクリプショ�
 export const TRANSFER_MIN_AMOUNT = "振込下限ポイント";
 export const CONVERTIBLE_POINT = "変換可能ポイント";
 
+export const CREATOR = "クリエイター";
+export const FAN = "ファン";
+export const DELETED = "削除済";
+export const NAME = "本名";
+export const AGENTID = "代理店ＩＤ";
+export const FAVORITE = "お気に入り";
+export const POINT = "ボイント";
+export const SEARCH_ITEM = "検索項目";
+export const GENDER_LIST = {"male": "男性", "female": "女性", "other": "その他"};
+
 // RGB(A) to HEX color code converter
 export const rgb2hex = (rgb) => {
     rgb = rgb.match(/^rgba?[\s+]?\([\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?,[\s+]?(\d+)[\s+]?/i);
@@ -479,11 +517,26 @@ export const LOGIN_REPASSWORD = "希望ログインパスワード（確認）";
 export const BANK_NAME = "銀行名";
 export const BRANCH_NAME = "支店名";
 export const BANK_ACCOUNT_NUMBER = "口座番号";
+export const FINANCIAL_CODE = "金融コード";
 export const ORDINARY = "普通";
+export const CURRENT_ACCOUNT = "当座";
 export const BANK_ACCOUNT_NAME = "口座名";
+export const BANK_ACCOUNT_TYPE = "口座種別";
 export const AGENT_REG_INSTRUCTION = "申請する法人の法人口座でご登録ください。\n 登録情報に間違いの無いよう再度ご確認ください。 \n パスワードはご自身でメモをお取りください。";
 export const TERMS_AGREE = "規約を読み同意いたします";
 export const TERMS_LABEL = "規約";
+
+// CEATOR MANAGE
+export const NET_SALES = "差し引き売上";
+export const PAID_COMPENSATION = "支払済報酬";
+export const NORMAL = "通常";
+export const SUBSCRIBE = "サブスク";
+export const DATE = "日付";
+export const CREATOR_COMPENSATION = "クリエイター報酬";
+export const SALES = "売り上げ";
+export const COMPENSATION = "報酬";
+export const PAID_AMOUNT = "支払額";
+
 
 // GET POST INFO DATE 
 export const getPostInfoDate = (activeDate) => {
@@ -525,4 +578,43 @@ export const convert_fulldate = (input_date) => {
   let initial_date = new Date(input_date);
   let result_date = addZero(initial_date.getUTCFullYear()) + '.' + addZero(initial_date.getUTCMonth() + 1) + '.' + addZero(initial_date.getUTCDate());
   return result_date;
+}
+
+export const compareValues = (key, order = 'asc', subKey = null) => {
+  return function innerSort(a, b) {
+    if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
+      // property doesn't exist on either object
+      return 0;
+    }
+    else if (subKey !== null && (!a[key].hasOwnProperty(subKey) || !b[key].hasOwnProperty(subKey))) {
+      // property doesn't exist on either object
+      return 0;
+    }
+
+    var varA = "";
+    var varB = "";
+
+    if(subKey === null){
+      varA = (typeof a[key] === 'string')
+      ? a[key].toUpperCase() : a[key];
+      varB = (typeof b[key] === 'string')
+        ? b[key].toUpperCase() : b[key];
+    }
+    else{
+      varA = (typeof a[key][subKey] === 'string')
+      ? a[key][subKey].toUpperCase() : a[key][subKey];
+      varB = (typeof b[key][subKey] === 'string')
+        ? b[key][subKey].toUpperCase() : b[key][subKey];
+    }
+
+    let comparison = 0;
+    if (varA > varB) {
+      comparison = 1;
+    } else if (varA < varB) {
+      comparison = -1;
+    }
+    return (
+      (order === 'desc') ? (comparison * -1) : comparison
+    );
+  };
 }

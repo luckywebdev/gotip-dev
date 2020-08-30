@@ -25,6 +25,20 @@ const initialState = {
         case 'FAILED_GET_NOTICE':
             newState.noticeResult = false;
             break;
-    }
+        case 'SUCCESSFUL_USER_SEARCH':
+            newState.userSearch = true;
+            newState.userList = action.payload.userList
+            break;
+        case 'FAILED_USER_SEARCH':
+            newState.userSearch = false;
+            break;
+        case 'SUCCESSFUL_CREATOR_SEARCH':
+            newState.creatorSearch = true;
+            newState.creatorList = action.payload.creatorList
+            break;
+        case 'FAILED_CREATOR_SEARCH':
+            newState.creatorSearch = false;
+            break;
+        }
     return Object.assign({}, state, newState)
   }

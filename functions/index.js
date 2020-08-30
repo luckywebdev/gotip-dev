@@ -13,7 +13,7 @@ admin.initializeApp({
     authDomain: profiles.dev.domain,
     projectId: profiles.dev.project_id,
     databaseURL: profiles.database_url,
-    storageBucket: 'gotip-dev.appspot.com'
+    storageBucket: "gotip-dev.appspot.com"
 })
 
 const db = admin.firestore()

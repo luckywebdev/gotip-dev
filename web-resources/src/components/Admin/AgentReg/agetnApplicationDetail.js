@@ -52,6 +52,9 @@ const Input = styled.input`
     height: 40px;
   `}
 `;
+const RightMarginLabel = styled.label`
+  margin-right: 1em;
+`
 
 
 const ErrorMsg = styled.div`
@@ -77,10 +80,10 @@ export default (props) => {
     const [chargePersonTel, setChargePersonTel] = useState("");
     const [email, setEmail] = useState("");
     const [reEmail, setReEmail] = useState("");
-    const [bankName, setBankName] = useState("");
-    const [branchName, setBranchName] = useState("");
+    const [bankCode, setBankCode] = useState("");
+    const [branchCode, setBranchCode] = useState("");
     const [bankAccountNumber, setBankAccountNumber] = useState("");
-    const [ordinary, setOrdinary] = useState("");
+    const [bankAccountType, setBankAccountType] = useState("ordinary");
     const [bankAccountName, setBankAccountName] = useState("");
     const [errors, setErrors] = useState({email: "", reEmail: ""});
     const mainState = useSelector( state => state.main );
@@ -104,10 +107,10 @@ export default (props) => {
             setAgentLevel(mainState.otherUser.agentLevel);
         }
         if(typeof mainState.otherUserBank !== 'undefined'){
-            setBankName(mainState.otherUserBank.bank_name);
-            setBranchName(mainState.otherUserBank.branch_name);
+            setBankCode(mainState.otherUserBank.bank_code);
+            setBranchCode(mainState.otherUserBank.branch_code);
             setBankAccountNumber(mainState.otherUserBank.account_number);
-            setOrdinary(mainState.otherUserBank.ordinary);
+            setBankAccountType(mainState.otherUserBank.account_type);
             setBankAccountName(mainState.otherUserBank.account_holder);
         }
     }, [mainState.otherUser]);
@@ -240,11 +243,11 @@ export default (props) => {
                     <BlockContent>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
                             <Div width="30%" margin="0" padding="0" justify="flex-end" >
-                                <Text  str={Constants.BANK_NAME} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
+                                <Text  str={Constants.SIGNUP_4_BANK_CODE} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0" >
-                                <Input className="uk-input" type="text" name="bankName" disabled placeholder="" onChange={ (e) => setBankName(e.target.value) } value={bankName} />
-                                <ErrorMsg>{errors.bankName}</ErrorMsg>
+                                <Input className="uk-input" type="text" name="bankCode" disabled placeholder="" onChange={ (e) => setBankCode(e.target.value) } value={bankCode} />
+                                <ErrorMsg>{errors.bankCode}</ErrorMsg>
                             </Div>
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
@@ -252,8 +255,8 @@ export default (props) => {
                                 <Text  str={Constants.BRANCH_NAME} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0" >
-                                <Input className="uk-input" type="text" name="branchName" disabled placeholder="" onChange={ (e) => setBranchName(e.target.value) } value={branchName} />
-                                <ErrorMsg>{errors.branchName}</ErrorMsg>
+                                <Input className="uk-input" type="text" name="branchCode" disabled placeholder="" onChange={ (e) => setBranchCode(e.target.value) } value={branchCode} />
+                                <ErrorMsg>{errors.branchCode}</ErrorMsg>
                             </Div>
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
@@ -267,11 +270,11 @@ export default (props) => {
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
                             <Div width="30%" margin="0" padding="0" justify="flex-end" >
-                                <Text  str={Constants.ORDINARY} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
-                            <Div width="65%" margin="0" padding="0" >
-                                <Input className="uk-input" type="text" name="ordinary" placeholder="" disabled onChange={ (e) => setOrdinary(e.target.value) } value={ordinary} />
-                                <ErrorMsg>{errors.ordinary}</ErrorMsg>
+                            <Div width="65%" margin="0" padding="0" justify="flex-start" >
+                                <RightMarginLabel><input className="uk-radio" type="radio" name="accountType" disabled value="ordinary" onChange={ () => setBankAccountType('ordinary') } checked={ bankAccountType === 'ordinary' } />{Constants.ORDINARY}</RightMarginLabel>
+                                <RightMarginLabel><input className="uk-radio" type="radio" name="accountType" disabled value="current" onChange={ () => setBankAccountType('current') }  checked={ bankAccountType === 'current' } />{Constants.CURRENT_ACCOUNT}</RightMarginLabel>
+                                <ErrorMsg>{errors.bankAccountType}</ErrorMsg>
                             </Div>
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
@@ -283,7 +286,7 @@ export default (props) => {
                                 <ErrorMsg>{errors.bankAccountName}</ErrorMsg>
                             </Div>
                         </Div>
-                        <Div width="95%" margin=".5rem" padding="0 0 0 5%" justify="flex-end" alignItems="flex-start" >
+                       <Div width="95%" margin=".5rem" padding="0 0 0 5%" justify="flex-end" alignItems="flex-start" >
                             <textarea defaultValue={content} style={{textAlign: "left", fontSize: "1rem", margin: "0 .3rem", resize: "none", width: "90%", border: "none", padding: ".5rem"}} rows="3" onChange={(e) => setContent(e.target.value) } ></textarea>
                         </Div>
                         <Div width="100%" margin=".5rem" padding="5% 0 0 15%" justify="flex-start" >

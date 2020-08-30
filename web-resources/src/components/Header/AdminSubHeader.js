@@ -66,24 +66,38 @@ export default (props) => {
                         applicationTemp++;
                     }
                     else{
-                        if(item.preApprovalStatus !== 0){
+                        if(item.preApprovalStatus !== 0 || item.approval_status_p === 1){
                             applicationTemp++;
                         }
                     }
                 }
                 else{
-                    if(item.parentAgentID === mainState.user.agent_id){
+                    if(item.parentAgentID === mainState.user.agent_id && item.preApprovalStatus === 0 && item.approval_status_p === 0){
                         applicationTemp++;
                     }
                 }
                 setApplicationCount(applicationTemp);
             })
             mainState.agent.approved.result.map(item => {
-                approvedTemp++;
+               approvedTemp++;
                 setApprovedCount(approvedTemp);
             })
             mainState.agent.holds.result.map(item => {
-                holdTemp++;
+                if(mainState.user.agent_id.toString() === '100000'){
+                    if(item.parentAgentID === '100000'){
+                        holdTemp++;
+                    }
+                    else{
+                        if(item.approval_status_p === 1){
+                            holdTemp++;
+                        }
+                    }
+                }
+                else{
+                    if(item.parentAgentID === mainState.user.agent_id && item.approval_status_p === 0){
+                        holdTemp++;
+                    }
+                }
                 setHoldCount(holdTemp);
             })
 
@@ -128,9 +142,9 @@ export default (props) => {
                     </span>
                     <span style={{position: "relative"}}>
                         <Img width="35px" height="35px" margin="auto 1rem auto 0" src={`${Constants.LOCAL_IMAGE_URL}approved_icon.png`} />
-                        {approvedCount > 0 && (
+                        {/* {approvedCount > 0 && (
                             <span style={badgeIcon}>{approvedCount}</span>
-                        )}
+                        )} */}
                     </span>
                 </span>
             )}

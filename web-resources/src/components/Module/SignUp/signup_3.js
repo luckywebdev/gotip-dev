@@ -133,14 +133,6 @@ class SignUpPanel_3 extends Component {
                 <RightMarginLabel><input className="uk-radio" type="radio" name="delegate" value="障害者手帳" onChange={ this.handleInput } checked={ this.state.delegate.name === '障害者手帳' } />{Constants.SIGNUP_3_DISABILITY}</RightMarginLabel>
                 <RightMarginLabel><input className="uk-radio" type="radio" name="delegate" value="在留カード" onChange={ this.handleInput } checked={ this.state.delegate.name === '在留カード' } />{Constants.SIGNUP_3_RESIDENCE}</RightMarginLabel>
                 <RightMarginLabel><input className="uk-radio" type="radio" name="delegate" value="健康保険証" onChange={ this.handleInput } checked={ this.state.delegate.name === '健康保険証' } />{Constants.SIGNUP_3_HEALTH_CARD}</RightMarginLabel>
-
-                {/* <Text color="#313131" str={Constants.SIGNUP_3_DRIVER_LICENSE} textAlign="left" fontSize="1rem" margin=".5rem 0" />
-                <Text color="#313131" str={Constants.SIGNUP_3_PASSPORT} textAlign="left" fontSize="1rem" margin=".5rem 0" />
-                <Text color="#313131" str={Constants.SIGNUP_3_JUKI_CARD} textAlign="left" fontSize="1rem" margin=".5rem 0" />
-                <Text color="#313131" str={Constants.SIGNUP_3_MY_NUMBER_CARD} textAlign="left" fontSize="1rem" margin=".5rem 0" />
-                <Text color="#313131" str={Constants.SIGNUP_3_DISABILITY} textAlign="left" fontSize="1rem" margin=".5rem 0" />
-                <Text color="#313131" str={Constants.SIGNUP_3_RESIDENCE} textAlign="left" fontSize="1rem" margin=".5rem 0" />
-                <Text color="#313131" str={Constants.SIGNUP_3_HEALTH_CARD} textAlign="left" fontSize="1rem" margin=".5rem 0" /> */}
             </RowDiv>
             <ErrorMsg>{this.state.errors.name}</ErrorMsg>
         </RowDiv>

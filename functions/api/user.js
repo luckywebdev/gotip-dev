@@ -48,7 +48,7 @@ module.exports = async function (adminRef, dbRef, req, res) {
       })
       break
     case 'check' :
-      const chks = await checkAccount(req.body)
+      await checkAccount(req.body)
       .then(result => {
         console.log("results===>", result);
         if(result.state){
@@ -232,6 +232,19 @@ module.exports = async function (adminRef, dbRef, req, res) {
         res.send(false)
       })
       break
+    case 'logout': 
+      await logOut(req.body)
+      .then(() => {
+        res.send({
+          result: true
+        })
+      })
+      .catch(err => {
+        res.send({
+          result:false,
+          error: err
+        })
+      })
     default:
       res.end()
   }
@@ -269,6 +282,7 @@ function checkAccount(body) {
       .then(async (doc) => {
         if(doc.exists){
           const account = doc.data();
+          db.collection('users').doc(body.uid).update({loggedin: true}, {merge: true});
           resolve({
             state: true,
             action: "login",
@@ -315,7 +329,8 @@ function insertAccountInfo (body, { uid }) {
     const regData = createRegData(body)
     const userData = await admin.auth().getUser(uid);
     regData.email = userData.email;
-    regData.premium = false
+    regData.premium = false;
+    regData.created_at = new Date().getTime();
     const bankData = {
       bank_code: body.bank_code || null,
       branch_code: body.branch_code || null,
@@ -394,6 +409,7 @@ function updateAccountInfo (body, uid) {
       })
     
     const regData = createRegData(body)
+    regData.updated_at = new Date().getTime();
     const userData = await admin.auth().getUser(uid);
     regData.email = userData.email;
     regData.premium = false
@@ -622,5 +638,34 @@ function deleteAccount (uid) {
         error: "db"
       })
     }    
+  })
+}
+
+function logOut(body){
+  return new Promise (async (resolve, reject) => {
+    await db.collection('users').doc(body.uid).get()
+    .then(async (doc) => {
+      if(doc.exists){
+        console.log("loggedin===", body.uid);
+        await db.collection('users').doc(body.uid).update({loggedin: false}, {merge: true})
+        .then(() => {
+          resolve({
+            result: true
+          })
+        })
+        .catch((err) => {
+          resolve({
+            result: false,
+            error: err
+          })
+        })
+      }
+      else{
+        reject({
+          result: false,
+          error: 'there is no doc'
+        })
+      }
+    })
   })
 }

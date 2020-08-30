@@ -13,50 +13,15 @@ module.exports = async function (adminRef, dbRef, req, res) {
   console.log(req.query, req.params, req.path, req.body)
   switch (req.params.action) {
     case 'check' :
-      const chks = await checkAccount(req.body)
-      .then(result => {
-        if(result.state){
-          admin.auth().createCustomToken(req.body.uid)
-          .then((customToken) => {
-            res.send({
-              result: true,
-              action: result.action,
-              customToken: customToken,
-              email: result.email
-            })  
-          })
-        }
-        else{
-          if(result.errMessage === "timeout") {
-            admin.auth().deleteUser(req.body.uid)
-            .then(() => {
-              res.send({
-                result: false,
-                action: result.action,
-                message: 'timeout',
-                email: result.email
-              })
-            })
-          }
-          else{
-            res.send({
-              result: false,
-              action: result.action,
-              message: result.errMessage,
-              email: result.email
-            })
-          }
+      const chks = await checkAgent()
+      .then((result) => {
+        console.log("checkagent", result);
+        if(result.result){
+          res.send({ result: true })
         }
       })
-      .catch(err => {
-        console.error(err);
-        res.send({
-          result: false,
-          action: "land",
-          message: '',
-          errorCode: err,
-          email: ''
-        })
+      .catch((err) => {
+        res.send(err);
       })
       break;
     case 'register' :
@@ -226,7 +191,7 @@ function updateStatus (uid, agentID, currentStatus, statusCode) {
     
             oldData.splice(oldDataIndex, 1);
             t.update(oldRef, {list: oldData})
-            t.update(userRef, {approval_status: statusCode, updated_at: new Date()})
+            t.update(userRef, {approval_status: statusCode, approval_status_p: 1, updated_at: new Date().getTime()})
   
           }
         }
@@ -274,7 +239,7 @@ function updateStatus (uid, agentID, currentStatus, statusCode) {
               }      
               oldData.splice(oldDataIndex, 1);
               t.update(oldRef, {list: oldData})
-              t.update(userRef, {approval_status: statusCode, updated_at: new Date()})
+              t.update(userRef, {approval_status: statusCode, approval_status_p: 0, updated_at: new Date().getTime()})
             }
             else{
               oldData[oldDataIndex].approval_status = statusCode;
@@ -296,59 +261,41 @@ function updateStatus (uid, agentID, currentStatus, statusCode) {
   })
 }
 
-function checkAccount(body) {
+function checkAgent() {
   return new Promise(async(resolve, reject) => {
     try{
-      const userDB = await db.collection('users').doc(body.uid).get()
+      const userDB = await db.collection('master').doc("applications").get()
       .then(async (doc) => {
         if(doc.exists){
-          resolve({
-            state: true,
-            action: "login",
-            email: doc.email,
+          const userData = doc.data().list;
+          userData.forEach(async (item) => {
+            const currentTime = new Date().getTime();
+            const twoDayTime = 60 * 60 * 48 * 1000;
+            const agentRef = await db.collection('users').doc(item.agentID).get();
+            const agentData = agentRef.data();
+
+            if((item.parentAgentID === "100000" && item.approval_status === 0) || (item.parentAgentID !== "100000" && item.approval_status === 1) || (item.parentAgentID !== "100000" && agentData.approval_status_p === 1)){
+              if(currentTime - item.created_at > twoDayTime){
+                updateStatus("100000", item.agentID, 0, 1);
+              }
+            }
           })
         }
-        else{
-          const userData = await admin.auth().getUser(body.uid);
-          const d = new Date(userData.metadata.creationTime);
-          const createTimeStamp = d.getTime() / 1000;
-          const currentTime = new Date().getTime() / 1000;
-          const oneDayTime = 60 * 60 * 24;
-  
-          if((currentTime - createTimeStamp) <= oneDayTime){
-            resolve({
-              state: true,
-              action: "register",
-              email: userData.email,
-            })
-          }
-          else if((currentTime - createTimeStamp) > oneDayTime && userData.metadata.lastSignInTime === null){
-            resolve({
-              state: false,
-              action: "land",
-              errMessage: "timeout"
-            })
-          }
-          else{
-            resolve({
-              state: false,
-              email: userData.email,
-              action: "register",
-              errMessage: "signed_already"
-            })
-          }
-        }
+        resolve({
+          result: true
+        })
       })
     }
     catch(err){
+      console.log("checkAgent_Err", err);
       reject({
-        state: false,
-        action: "land",
+        result: false,
         errMessage: err
       })
     }
   })
 }
+
 
 function insertAccountInfo (body, { uid }) {
   return new Promise(async (resolve, reject) => {
@@ -356,13 +303,14 @@ function insertAccountInfo (body, { uid }) {
     const userData = await admin.auth().getUser(uid);
     regData.email = userData.email;
     regData.premium = false;
-    regData.created_at = new Date();
+    regData.created_at = new Date().getTime();
+    regData.approval_status_p = body.approvalStatusP;
     const bankData = {
-      bank_name: body.bankName || null,
-      branch_name: body.branchName || null,
+      bank_code: body.bankCode || null,
+      branch_code: body.branchCode || null,
       account_number: body.bankAccountNumber || null,
       account_holder: body.bankAccountName || null,
-      ordinary: body.ordinary || null
+      account_type: body.bankAccountType || null
     }
     const agentData = [{
         agentID: body.uid,
@@ -370,7 +318,7 @@ function insertAccountInfo (body, { uid }) {
         agentName: body.agentName,
         approval_status: 0,
         agentLevel: body.agentLevel,
-        created_at: new Date()
+        created_at: new Date().getTime()
     }]
     const masterRef = db.collection('master').doc('applications')
     const holdsRef = db.collection('master').doc('holds')
@@ -386,6 +334,7 @@ function insertAccountInfo (body, { uid }) {
           masterData = [...masterData, ...agentData];
           let holdData = holdMaster.data().list;
           let holdDataIndex = holdData.findIndex(item => item.agentID === body.uid);
+
           holdData.splice(holdDataIndex, 1);
           t.update(holdsRef, {list: holdData})
           t.update(masterRef, {list: masterData})
@@ -393,7 +342,7 @@ function insertAccountInfo (body, { uid }) {
       else{
           t.set(masterRef, {list: agentData}, {mere:true})
       }
-     t.set(userRef, regData, { merge: true })
+      t.set(userRef, regData, { merge: true })
       t.set(pointRef, { data: [], log: [] }, { merge: true })
       t.set(bankRef, bankData, {merge: true})
     })
@@ -456,6 +405,7 @@ function getChildAgent (uid, type) {
   return new Promise(async (resolve, reject) => {
     const result = [];
     uid = uid.toString();
+    console.log("type====>", type);
     if(uid.length > 6)
       uid = "100000";
     // const userRef = db.collection('users').doc(uid)
@@ -473,20 +423,28 @@ function getChildAgent (uid, type) {
               const agentData = agentDoc.data();
               agentData.preApprovalStatus = item.approval_status;
               const bankData = await db.collection('banks').doc(item.agentID).get();
+              if(item.parentAgentID === "100000"){
+                agentData.parentAgentName = "MDK";
+              }
+              else{
+                const pAgentDoc = await db.collection('users').doc(item.parentAgentID).get()
+                const pAgentData = pAgentDoc.data();
+                agentData.parentAgentName = pAgentData.name.nickname;
+              }
               // const resultElm = {...item, agentData}
               if(uid === '100000'){
                 if(item.parentAgentID === '100000'){
                   result.push({...agentData, ...bankData.data()});
                 }
                 else{
-                  if(type !== 'holds' && item.approval_status !== 0){
+                  if(type !== 'holds' || item.approval_status_p !== 0){
                     result.push({...agentData, ...bankData.data()});
                   }
                 }
               }
               else{
                 if(item.parentAgentID === uid){
-                  result.push({...agentData, ...bankData.data()});
+                    result.push({...agentData, ...bankData.data()});
                   if(type === 'approved'){
                     const approvedData = tempList.filter(elem => elem.parentAgentID === item.agentID);
                     approvedData.map(async (elems) => {

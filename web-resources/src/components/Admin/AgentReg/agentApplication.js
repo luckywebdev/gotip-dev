@@ -167,8 +167,8 @@ export default (props) => {
                   </thead>
                   <tbody>
                     { (agentList && agentList.length > 0) ? agentList.map((item, index) => {
-                      console.log("agentlist===>", typeof item.preApprovalStatus, typeof item.parentAgentID, typeof agentID);
-                      if(item.approval_status === 0){
+                      console.log("agentlist===>", agentList);
+                      if(item.approval_status === 0 || item.approval_status === 2){
                         if(agentID.toString() === "100000"){
                           if(item.parentAgentID === "100000"){
                             return (
@@ -176,19 +176,19 @@ export default (props) => {
                                 <td>{`${item.agentLevel}次`}</td>
                                 <td><a href="#" onClick={() => handleApplication(item.agent_id, item.approval_status)}>{item.name.nickname}</a></td>
                                 <td>{item.delegate.tel}</td>
-                                <td>{item.created_at ? Constants.convert_date(item.created_at._seconds * 1000) : Constants.convert_date(item.updated_at._seconds * 1000)}</td>
+                                <td>{item.created_at ? Constants.convert_date(Number(item.created_at)) : Constants.convert_date(Number(item.updated_at))}</td>
                                 <td><ApplicationStatus status={item.approval_status ? item.approval_status : 0} /></td>
                               </tr>
                             )
                           }
                           else{
-                            if(item.preApprovalStatus !== 0){
+                            if((item.approval_status === 0 && item.preApprovalStatus !== 0) || (item.approval_status === 0 && item.approval_status_p === 1) || (item.approval_status === 2 && item.approval_status_p === 1)){
                               return (
                                 <tr key={index}>
                                   <td>{`${item.agentLevel}次`}</td>
                                   <td><a href="#" onClick={() => handleApplication(item.agent_id, item.approval_status)}>{item.name.nickname}</a></td>
                                   <td>{item.delegate.tel}</td>
-                                  <td>{item.created_at ? Constants.convert_date(item.created_at._seconds * 1000) : Constants.convert_date(item.updated_at._seconds * 1000)}</td>
+                                  <td>{item.created_at ? Constants.convert_date(Number(item.created_at)) : Constants.convert_date(Number(item.updated_at))}</td>
                                   <td><ApplicationStatus status={item.approval_status ? item.approval_status : 0} /></td>
                                 </tr>
                               )
@@ -196,15 +196,17 @@ export default (props) => {
                           }
                         }
                         else{
-                          return (
-                            <tr key={index}>
-                              <td>{`${item.agentLevel}次`}</td>
-                              <td><a href="#" onClick={() => handleApplication(item.agent_id, item.approval_status)}>{item.name.nickname}</a></td>
-                              <td>{item.delegate.tel}</td>
-                              <td>{item.created_at ? Constants.convert_date(item.created_at._seconds * 1000) : Constants.convert_date(item.updated_at._seconds * 1000)}</td>
-                              <td><ApplicationStatus status={item.approval_status ? item.approval_status : 0} /></td>
-                            </tr>
-                          )
+                          if((item.approval_status === 0 && item.preApprovalStatus === 0 && item.approval_status_p === 0) || (item.approval_status === 2 && item.approval_status_p === 0)){
+                            return (
+                              <tr key={index}>
+                                <td>{`${item.agentLevel}次`}</td>
+                                <td><a href="#" onClick={() => handleApplication(item.agent_id, item.approval_status)}>{item.name.nickname}</a></td>
+                                <td>{item.delegate.tel}</td>
+                                <td>{item.created_at ? Constants.convert_date(Number(item.created_at)) : Constants.convert_date(Number(item.updated_at))}</td>
+                                <td><ApplicationStatus status={item.approval_status ? item.approval_status : 0} /></td>
+                              </tr>
+                            )
+                          }
                         }
                       }
                     }) : (

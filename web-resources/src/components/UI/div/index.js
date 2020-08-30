@@ -18,6 +18,7 @@ const StyleDiv = styled.div`
   left: ${props => `${ props.data.left ? props.data.left : 'unset'}`};
   right: ${props => `${ props.data.right ? props.data.right : 'unset'}`};
   box-sizing: border-box;
+  // overflow-y: auto;
   ${media.lessThan("large")`
   /* screen width is between 768px (medium) and 1170px (large) */
     padding: ${props => `${props.data.paddingL ? props.data.paddingL : ''}`};

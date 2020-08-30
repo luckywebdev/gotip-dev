@@ -10,4 +10,13 @@ export default {
     tryGetNotice: () => {
       return { type: 'GET_NOTICE'}
     },
+    tryUserSearch: (filterData) => {
+      return { type: 'USER_SEARCH', payload: filterData}
+    },
+    tryUserDelete: (uidArray, filterData) => {
+      return { type: 'USER_DELETE', payload: {uidArray, filterData}}
+    },
+    tryCreatorSearch: (agentID) => {
+      return { type: 'CREATOR_SEARCH', payload: agentID}
+    },
   }

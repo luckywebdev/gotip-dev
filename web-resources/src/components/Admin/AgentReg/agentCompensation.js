@@ -31,6 +31,7 @@ const MainContent = styled.nav`
 const BlockContent = styled.div`
     width: 100%;
     margin-bottom: 10px;
+    margin-top: 2%;
     display: flex;
     justify-content: flex-start;
     align-items: center;
@@ -44,18 +45,20 @@ const BlockContent = styled.div`
 `;
 
 const Input = styled.input`
-  border: 1px solid #A3B5C1;
-  background-color: #FFF;
-  box-shadow: none;
-  outline: none;
-  height: 40px;
-
-  &:focus {
-    border: 1px solid #707070;
-  }
-  ${media.lessThan("large")`
-    height: 30px;
-  `}
+    border: none;
+    border-bottom: 1px solid #A3B5C1;
+    background-color: transparent;
+    box-shadow: none;
+    outline: none;
+    height: 40px;
+    width: 20%;
+    margin: .3rem;
+    &:focus {
+        border: 1px solid #707070;
+    }
+    ${media.lessThan("large")`
+        height: 30px;
+    `}
 `;
 
 const ErrorMsg = styled.div`
@@ -63,14 +66,29 @@ const ErrorMsg = styled.div`
 `;
 
 const ApplicationStatus = (props) => {
-    const statusColors = ["#7ED957", "#FFDE59", "#3BA6A7"];
+    const statusImg = ["application_icon.png", "approved_icon.png", "hold_icon.png"];
     const StatusIcon = {
         width: "25px",
         height: "25px",
         borderRadius: "50%",
-        backgroundColor: statusColors[props.status]
+        position: "relative",
+        backgroundColor: "transparent"
     }
-    return (<div style={StatusIcon}></div>);
+    const badgeIcon = {
+      position: "absolute",
+      width: "15px",
+      height: "15px",
+      backgroundColor: "red",
+      top: "-2px",
+      right: "-2px",
+      color: "#FFF",
+      fontSize: "12px",
+      borderRadius: "50%",
+      justifyContent: "center",
+      alignItems: "center",
+      display: props.badge ? "flex" : "none"
+    }
+    return (<div style={StatusIcon}><img src={`${Constants.LOCAL_IMAGE_URL}${statusImg[props.status]}`} /></div>);
 }
 
 const filterOptions = ["先月", "当月", "翌月"];
@@ -78,10 +96,33 @@ const filterOptions = ["先月", "当月", "翌月"];
 export default (props) => {
     const [applicationStatus, setApplicationStatus] = useState(1);
     const [filter, setFilter] = useState(0);
+    const [agentListSource, setAgentListSource] = useState([])
+    const [agentLevel, setAgentLevel] = useState('3');
+    const [agentID, setAgentID] = useState("100000");
+    const [agentList, setAgentList] = useState([]);
     const [startDate, setStartDate] = useState(moment().format("YYYY-MM-DD"));
     const [endDate, setEndDate] = useState(moment().format("YYYY-MM-DD"));
     const mainState = useSelector( state => state.main );
     const theme_color = typeof mainState.user !== 'undefined' && typeof mainState.user.theme_color !== 'undefined' ? mainState.user.theme_color : "#30AA89";
+
+    useEffect(() => {
+        if(typeof mainState.user !== 'undefined' && mainState.user.auth_level >= 3){
+          setAgentID(mainState.user.agent_id);
+          setAgentLevel(mainState.user.agentLevel);
+        }
+      }, [mainState.user])
+    
+      useEffect(() => {
+        if(typeof mainState.agent !== 'undefined'){
+          const applicationTemp = mainState.agent.applications.result;
+          const approvedTemp = mainState.agent.approved.result;
+          const holdsTemp = mainState.agent.holds.result;
+          const refuseTemp = mainState.agent.refused.result;
+          setAgentList([...applicationTemp, ...approvedTemp, ...holdsTemp, ...refuseTemp]);
+          setAgentListSource([...applicationTemp, ...approvedTemp, ...holdsTemp, ...refuseTemp]);
+        }
+      }, [mainState.agent])
+
     // const [startDate, setStartDate] = useState(new Date());
     const handleDateTimePicker = (moment, name) => {
         console.log(name, moment.format("YYYY-MM-DD"), "name");
@@ -90,14 +131,11 @@ export default (props) => {
         else
             setEndDate(moment.format("YYYY-MM-DD"));
     };
+
     
     return (
     <MainContent>
         <BlockContent>
-            <Div width="80%" padding="1% 0 0 0" margin="0" backcolor="transparent" justify="space-between" >
-              <Text  str="代理店検索" textAlign="right" color="#333" fontSize="25px" fontWeight="900" margin="0 .3rem" />
-              <Text  str="代理店ID：" textAlign="right" color="#999" margin="0 .3rem" />
-            </Div>
             <Div width="100%" margin="0.5rem .5rem 0 .5rem" padding="0" backcolor="transparent"  justify="space-between" >
                 <Div width="25%" margin="0" padding="0" backcolor="transparent"  justify="space-between" >
                     <Datetime
@@ -132,60 +170,71 @@ export default (props) => {
                         }
                     />     
                 </Div>
-                <Div width="25%" height="40px" margin="0" padding="0" backcolor="#D5EEEF" justify="flex-start" >
-                    <span>支払合計額 ００００００円</span>
+                <Div width="25%" height="40px" margin="0" padding="0" backcolor="transparent" justify="flex-start" style={{borderBottom: "1px solid #EAEAEA"}} >
+                    <span>売上 ００００００円</span>
                 </Div>
             </Div>
             <Div width="100%" margin="0.8rem .5rem 0 .5rem" padding="0" backcolor="transparent"  justify="space-between" >
                 <Div width="35%" margin="0" padding="0" backcolor="transparent"  justify="center" >
                     {
                         filterOptions.map((item, index) => (
-                            <Btn width="30%" radius="0px"  backcolor={filter === index ? theme_color : "transparent"} color={filter === index ? "#FFF" : theme_color} border={ `1px solid ${theme_color}` } padding=".3rem 1rem" margin="0" text={item} onClick={() => setFilter(index)} key={index} />
+                            <Btn key={index} width="20%" radius="0px"  backcolor={filter === index ? "#77ADC5" : "#B6D4E2"} color="#FFF" border="none" padding=".5rem .5rem" margin="0 .2rem" text={item} onClick={() => setFilter(index)} />
                         ))
                     }
                 </Div>
-                <Div width="25%" height="40px" margin="0" padding="0" backcolor="#D5EEEF" justify="flex-start" >
-                    <span>売上 ００００００円</span>
+                <Div width="25%" height="40px" margin="0" padding="0" backcolor="transparent" justify="flex-start" style={{borderBottom: "1px solid #EAEAEA"}} >
+                    <span>支払合計額 ００００００円</span>
                 </Div>
             </Div>
 
-            <Div width="100%" height="80%" margin="0 .5rem 2% .5rem" backcolor="#F3F3F3" direction="column" alignItems="center" justify="flex-start" >
+            <Div width="100%" height="80%" margin="0 .5rem 2% .5rem" backcolor="#FFF" direction="column" alignItems="center" justify="flex-start" >
                 <Div width="95%" margin=".5rem" padding="0" justify="center" backcolor="#FFF" >
                     <table className="uk-table uk-table-middle uk-table-divider uk-table-hover">
-                    <thead>
-                        <tr>
-                            <th className="uk-width-small">次</th>
-                            <th>{Constants.AGENT_NAME}</th>
-                            <th>{Constants.CHARGE_PERSON_TEL}</th>
-                            <th>前月売上</th>
-                            <th>登録日</th>
-                            <th className="uk-width-small">ステータス</th>
-                            <th>今月売上</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>2次</td>
-                            <td>TAMAGO</td>
-                            <td>090-3219-8347</td>
-                            <td>TAMAGO</td>
-                            <td>1,000,000</td>
-                            <td><ApplicationStatus status={applicationStatus} /></td>
-                            <td>2,000,000</td>
-                        </tr>
-                        <tr>
-                            <td>3次</td>
-                            <td>HIYOKO</td>
-                            <td>090-3219-8347</td>
-                            <td>TAMAGO</td>
-                            <td>700,000</td>
-                            <td><ApplicationStatus status={applicationStatus} /></td>
-                            <td>1,000,000</td>
-                        </tr>
-                    </tbody>
+                        <thead>
+                            <tr>
+                                <th className="uk-width-small">階級</th>
+                                <th>{Constants.AGENT_NAME}</th>
+                                <th>売り上げ</th>
+                                <th>支払い</th>
+                                <th>差引報酬金額</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>2次</td>
+                                <td>TMAGO</td>
+                                <td>40,000</td>
+                                <td>20,000</td>
+                                <td>20,000</td>
+                            </tr>
+                            <tr>
+                                <td>2次</td>
+                                <td>NIWATORI</td>
+                                <td>40,000</td>
+                                <td>20,000</td>
+                                <td>20,000</td>
+                            </tr>
+                            <tr>
+                                <td>3次</td>
+                                <td>HIYOKO</td>
+                                <td>60,000</td>
+                                <td>30,000</td>
+                                <td>30,000</td>
+                            </tr>
+                        </tbody>
                     </table> 
                 </Div>
             </Div>
+            <Div width="100%" height="80%" margin="0 .5rem 2% .5rem" backcolor="transparent" direction="row" alignItems="center" justify="center" >
+                <Input className="uk-input" type="text" name="address" placeholder="" value={"合計"} />
+                <Input className="uk-input" type="text" name="address" placeholder="" value={"合計"} />
+                <Input className="uk-input" type="text" name="address" placeholder="" value={"合計"} />
+            </Div>
+            <Div width="100%" height="80%" margin="0 .5rem 2% .5rem" backcolor="transparent" direction="row" alignItems="center" justify="center" >
+                <Btn width="12%" radius="5px"  backcolor="#4E8338" color="#FFF" border="none" padding=".5rem 1rem" margin="1rem .2rem" text="Excel CSV" />
+                <Btn width="12%" radius="5px"  backcolor="#9B8B68" color="#FFF" border="none" padding=".5rem 1rem" margin="1rem .2rem" text="全銀協フォーマット" />
+            </Div>
+
         </BlockContent>
     </MainContent>
   );

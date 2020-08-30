@@ -7,6 +7,9 @@ export default {
       console.log("TRY_SEARCH", fiterOptions);
       return { type: 'TRY_SEARCH', payload: fiterOptions }
     },
+    tryCheckAgent: () => {
+      return { type: 'TRY_CHECK_AGENT' }
+    },
     sendMessage: (messageContent) => {
       console.log("SEND_MESSAGE", messageContent);
       return { type: 'SEND_MESSAGE', payload: messageContent }

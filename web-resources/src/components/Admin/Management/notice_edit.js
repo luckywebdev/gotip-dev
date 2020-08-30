@@ -106,7 +106,7 @@ export default (props) => {
             return (
                 <BlockContent style={{backgroundColor: theme_color}} key={index}>
                     <Div width="95%" padding=".8% 0 0 0" margin="0" backcolor="transparent" justify="space-between" >
-                        <Text str={item.created_at ? Constants.convert_fulldate(item.created_at) : Constants.convert_date(item.updated_at)} width="80%" textAlign="left" color="#FFF" margin=".5rem" />
+                        <Text str={item.created_at ? Constants.convert_fulldate(Number(item.created_at)) : Constants.convert_fulldate(Number(item.updated_at))} width="80%" textAlign="left" color="#FFF" margin=".5rem" />
                         <Anchor href="#" decoration="underline" color="#FFF" text={Constants.EDIT} id="editBtn" clicked={() => handleUpdate(item)} />
                     </Div>
                     <Div width="100%" backcolor="#FFF" margin="0rem 0 .5rem 0">

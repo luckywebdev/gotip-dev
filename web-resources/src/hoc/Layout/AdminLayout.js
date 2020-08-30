@@ -18,7 +18,7 @@ const Content = styled.div`
 `;
 const SubContent = styled.div`
     width: 100%;
-    height: 100%;
+    min-height: 100%;
     overflow: auto;
     background-color: #F5F8FA;
     display: flex;

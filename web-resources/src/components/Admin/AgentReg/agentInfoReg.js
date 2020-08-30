@@ -10,6 +10,7 @@ import styled from 'styled-components';
 import media from 'styled-media-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons'
+import InputMask from 'react-input-mask';
 
 import Btn from '../../UI/btn';
 import Img from '../../UI/img';
@@ -41,6 +42,7 @@ const Input = styled.input`
   box-shadow: none;
   outline: none;
   height: 30px;
+  border-radius: 5px;
 
   &:focus {
     border: 1px solid #707070;
@@ -50,6 +52,23 @@ const Input = styled.input`
   `}
 `;
 
+const InputMaskStyle = {
+    backgroundColor: "#FFF",
+    border: "1px solid #A3B5C1",
+    padding: "0rem 1rem",
+    height: '30px',
+    margin: '0px',
+    width: '100%',
+    boxShadow: 'none',
+    outline: 'none',
+    borderRadius: '5px',
+    boxSizing: 'border-box'
+  }
+  
+
+const RightMarginLabel = styled.label`
+  margin-right: 1em;
+`
 
 const ErrorMsg = styled.div`
   color: red;
@@ -63,6 +82,7 @@ export default (props) => {
     const registerSuccess = "GOTIP代理店申請を受け付けました。登録内容に問題が無い場合申請が許可され最大48時間で代理店カウントが発行されます。登録内容に不備がある場合は申請は保留中となり再度申請のお手続きをするようリンクが再送されます。"
     const [termsAgree, setTermsAgree] = useState(false);
     const [approvalStatus, setApprovalStatus] = useState(0);
+    const [approvalStatusP, setApprovalStatusP] = useState(0);
     const [parentAgentID, setParentAgentID] = useState("");
     const [allParentID, setAllParentID] = useState("");
     const [agentID, setAgentID] = useState("");
@@ -81,10 +101,10 @@ export default (props) => {
     const [reEmail, setReEmail] = useState("");
     const [password, setPassword] = useState("");
     const [rePassword, setRePassword] = useState("");
-    const [bankName, setBankName] = useState("");
-    const [branchName, setBranchName] = useState("");
+    const [bankCode, setBankCode] = useState("");
+    const [branchCode, setBranchCode] = useState("");
     const [bankAccountNumber, setBankAccountNumber] = useState("");
-    const [ordinary, setOrdinary] = useState("");
+    const [bankAccountType, setBankAccountType] = useState("ordinary");
     const [bankAccountName, setBankAccountName] = useState("");
     const [errors, setErrors] = useState({email: "", reEmail: ""});
     const mainState = useSelector( state => state.main );
@@ -106,6 +126,7 @@ export default (props) => {
     useEffect(() => {
         if(typeof mainState.otherUser !== "undefined" && typeof mainState.otherUser.name !== "undefined"){
             setApprovalStatus(mainState.otherUser.approval_status);
+            setApprovalStatusP(mainState.otherUser.approval_status_p);
             setAgentID(mainState.otherUser.agent_id);
             setAgentName(mainState.otherUser.name.nickname);
             setAgentNameKana(mainState.otherUser.name.agentNameKana);
@@ -122,10 +143,10 @@ export default (props) => {
             setAgentLevel(mainState.otherUser.agentLevel);
         }
         if(typeof mainState.otherUserBank !== 'undefined'){
-            setBankName(mainState.otherUserBank.bank_name);
-            setBranchName(mainState.otherUserBank.branch_name);
+            setBankCode(mainState.otherUserBank.bank_code);
+            setBranchCode(mainState.otherUserBank.branch_code);
             setBankAccountNumber(mainState.otherUserBank.account_number);
-            setOrdinary(mainState.otherUserBank.ordinary);
+            setBankAccountType(mainState.otherUserBank.account_type);
             setBankAccountName(mainState.otherUserBank.account_holder);
         }
     }, [mainState.otherUser]);
@@ -135,7 +156,7 @@ export default (props) => {
             let errors = {};
             let isValid = true;
             const regex = /^0/g;
-            inputField = {"agentName": agentName, "agentNameKana": agentNameKana, "corporateName": corporateName, "accountName": accountName, "postalCode": postalCode, "address": address, "phoneNumber": phoneNumber, "chargePersonName": chargePersonName, "chargePersonNameKana": chargePersonNameKana, "chargePersonTel": chargePersonTel, "email": email, "reEmail": reEmail, "password": password, "rePassword": rePassword, "bankName": bankName, "branchName": branchName, "bankAccountNumber": bankAccountNumber, "ordinary": ordinary, "bankAccountName": bankAccountName}
+            inputField = {"agentName": agentName, "agentNameKana": agentNameKana, "corporateName": corporateName, "accountName": accountName, "postalCode": postalCode, "address": address, "phoneNumber": phoneNumber, "chargePersonName": chargePersonName, "chargePersonNameKana": chargePersonNameKana, "chargePersonTel": chargePersonTel, "email": email, "reEmail": reEmail, "password": password, "rePassword": rePassword, "bankCode": bankCode, "branchCode": branchCode, "bankAccountNumber": bankAccountNumber, "bankAccountType": bankAccountType, "bankAccountName": bankAccountName}
 
             for(var key in inputField)
             {
@@ -184,6 +205,12 @@ export default (props) => {
                 isValid = false;
             }
 
+            if (accountName && bankAccountName && accountName !== bankAccountName){
+                errors.accountName = "*口座名義人名が一致していません。";
+                errors.bankAccountName = "*口座名義人名が一致していません。";
+                isValid = false;
+            }
+
             setErrors(errors);
             return isValid;
         } catch (err) {
@@ -200,6 +227,7 @@ export default (props) => {
                 inputField.agentLevel = agentLevel;
                 inputField.agentID = agentID;
                 inputField.allIDs = allParentID;
+                inputField.approvalStatusP = approvalStatusP;
                 dispatch(registration.tryRegisterAgent(inputField));
             }
             else{
@@ -285,7 +313,7 @@ export default (props) => {
                                 <Text  str={Constants.PHONE_NUMBER} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0" direction="column" alignItems="flex-start" >
-                                <Input className="uk-input" type="number" name="phoneNumber" max="9999999999" min="1000000000" placeholder="" onChange={ (e) => setPhoneNumber(e.target.value) } value={phoneNumber} />
+                                <Input className="uk-input" type="number" name="phoneNumber" max="9999999999" min="100000000" placeholder="" onChange={ (e) => setPhoneNumber(e.target.value) } value={phoneNumber} />
                                 <ErrorMsg>{errors.phoneNumber}</ErrorMsg>
                             </Div>
                         </Div>
@@ -356,20 +384,20 @@ export default (props) => {
                     <BlockContent>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
                             <Div width="30%" margin="0" padding="0" justify="flex-end" >
-                                <Text  str={Constants.BANK_NAME} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
+                                <Text  str={Constants.SIGNUP_4_BANK_CODE} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0" direction="column" alignItems="flex-start" >
-                                <Input className="uk-input" type="text" name="bankName" placeholder="" onChange={ (e) => setBankName(e.target.value) } value={bankName} />
-                                <ErrorMsg>{errors.bankName}</ErrorMsg>
+                                <InputMask mask="9999" maskChar=" "  name="bankCode" style={InputMaskStyle} placeholder="0000"  onChange={ (e) => setBankCode(e.target.value) } value={bankCode}  />
+                                <ErrorMsg>{errors.bankCode}</ErrorMsg>
                             </Div>
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
                             <Div width="30%" margin="0" padding="0" justify="flex-end" >
-                                <Text  str={Constants.BRANCH_NAME} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
+                                <Text  str={Constants.SIGNUP_4_BRANCH_CODE} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0"  direction="column" alignItems="flex-start">
-                                <Input className="uk-input" type="text" name="branchName" placeholder="" onChange={ (e) => setBranchName(e.target.value) } value={branchName} />
-                                <ErrorMsg>{errors.branchName}</ErrorMsg>
+                                <InputMask mask="999" maskChar=" "  name="branchCode" style={InputMaskStyle} placeholder="000"   onChange={ (e) => setBranchCode(e.target.value) } value={branchCode} />
+                                <ErrorMsg>{errors.branchCode}</ErrorMsg>
                             </Div>
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
@@ -377,17 +405,19 @@ export default (props) => {
                                 <Text  str={Constants.BANK_ACCOUNT_NUMBER} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0" direction="column" alignItems="flex-start" >
-                                <Input className="uk-input" type="text" name="bankAccountNumber" placeholder="" onChange={ (e) => setBankAccountNumber(e.target.value) } value={bankAccountNumber} />
+                                <InputMask mask="9999999" maskChar=" "  name="bankAccountNumber" style={InputMaskStyle} placeholder="0000000"  onChange={ (e) => setBankAccountNumber(e.target.value) } value={bankAccountNumber} />
+                               {/* <Input className="uk-input" type="text" name="bankAccountNumber" placeholder="" onChange={ (e) => setBankAccountNumber(e.target.value) } value={bankAccountNumber} /> */}
                                 <ErrorMsg>{errors.bankAccountNumber}</ErrorMsg>
                             </Div>
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >
                             <Div width="30%" margin="0" padding="0" justify="flex-end" >
-                                <Text  str={Constants.ORDINARY} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
+                                <Text  str={Constants.BANK_ACCOUNT_TYPE} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
-                            <Div width="65%" margin="0" padding="0" direction="column" alignItems="flex-start" >
-                                <Input className="uk-input" type="text" name="ordinary" placeholder="" onChange={ (e) => setOrdinary(e.target.value) } value={ordinary} />
-                                <ErrorMsg>{errors.ordinary}</ErrorMsg>
+                            <Div width="65%" margin="0" padding="0" alignItems="center" justify="flex-start" >
+                                <RightMarginLabel><input className="uk-radio" type="radio" name="accountType" value="ordinary" onChange={ () => setBankAccountType('ordinary') } checked={ bankAccountType === 'ordinary' } />{Constants.ORDINARY}</RightMarginLabel>
+                                <RightMarginLabel><input className="uk-radio" type="radio" name="accountType" value="current" onChange={ () => setBankAccountType('current') }  checked={ bankAccountType === 'current' } />{Constants.CURRENT_ACCOUNT}</RightMarginLabel>
+                                <ErrorMsg>{errors.bankAccountType}</ErrorMsg>
                             </Div>
                         </Div>
                         <Div width="95%" margin=".5rem" padding="0" justify="center" >

@@ -62,7 +62,7 @@ export default (props) => {
                     {
                         Constants.SIDE_MENU_LIST.map((item, index) => {
                             const open_class = history.location.pathname.includes(item.url) ? "uk-open" : "";
-                            const parent_class = item.child.length > 0 ? "uk-parent uk-open" : ""
+                            const parent_class = item.child.length > 0 ? "uk-parent" : ""
                             return (
                                 <li className={`${open_class} ${parent_class}`} key={index} style={{marginBottom: "2%"}}>
                                     {

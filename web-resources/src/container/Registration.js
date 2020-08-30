@@ -11,6 +11,7 @@ import * as Constants from '../Constants';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from '../components/UI/logo';
+import Anchor from '../components/UI/a';
 import RowDiv from '../components/UI/div';
 import Text from '../components/UI/text';
 import Btn from '../components/UI/btn';
@@ -44,7 +45,8 @@ class Registration extends Component {
     this.state = {
         logining: false,
         uid: "",
-        times: ""
+        times: "",
+        termsAgree: false
     };
   }
 
@@ -63,7 +65,15 @@ class Registration extends Component {
 
   CheckUser = () => {
     const  { checkUser } = this.props;
-    checkUser(this.state.uid, this.state.times);
+    if(this.state.termsAgree){
+      checkUser(this.state.uid, this.state.times);
+    }
+  }
+
+  setTermsAgree = () => {
+    this.setState({
+      termsAgree: !this.state.termsAgree
+    })
   }
 
   render(){
@@ -107,8 +117,13 @@ class Registration extends Component {
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      <RowDiv width="100%" margin="20% 0" padding="1rem" justify="center">
-                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION} fontSize="2.5rem" margin="1rem 1rem" />
+                      <RowDiv width="100%" margin="20% 0" padding="1rem" justify="center" alignItems="center">
+                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION1} fontSize="2.5rem" margin="1rem 1rem" />
+                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION2} fontSize="2.5rem" margin="1rem 1rem" />
+                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION3} fontSize="2.5rem" margin="1rem 1rem" />
+                        <Anchor href="#" decoration="underline" color="#2185D0" text={Constants.TERMS_PAGE} id="terms" target="_blank" />
+                        <label style={{width: "100%"}}><input className="uk-checkbox" type="checkbox" name="terms_agree" onChange={this.setTermsAgree } checked={ this.state.termsAgree === true } style={{marginRight: "2%"}} />{Constants.TERMS_AGREE}</label>
+
                       </RowDiv>
                       <RowDiv width="100%" margin="0 0 5rem 0" padding="1rem" justify="space-around" alignItem="center" >
                         <Btn text={Constants.LOGIN} fontSize=".8rem" width="40%" backcolor="#EA497B" padding=".8rem 0" onClick={this.CheckUser} />

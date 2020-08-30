@@ -92,6 +92,45 @@ function trySearch(firebase, filterOptions){
     })
 }
 
+function* handleCheckAgent() {
+    while (true) {
+        const action = yield take('TRY_CHECK_AGENT')
+        const { payload, error } = yield call(tryCheckAgent, firebase, action.payload)
+        yield put({ type: 'SET_LOADING_TEXT', payload: '処理中' })
+        if (!error) {
+            if(payload && payload.result === true){
+                yield put({ type: 'SET_LOADING_TEXT', payload: null })
+            }
+            else{
+            if(typeof payload.error !== 'undefined')
+                alertErrorMessage(error)
+            }
+        } else {
+            if(typeof error.errCode !== 'undefined')
+                alertErrorMessage(error.errCode)
+        }
+    }
+}
+
+function tryCheckAgent(){
+    return new Promise(async (resolve, reject) => {
+        try{
+            const response = await axios.post(`/api/agent/check`);
+            const data = response.data ? response.data : {}
+            resolve({
+                payload: data,
+                error: null
+            })
+        }
+        catch(err) {
+            reject({
+                payload: null,
+                error: err
+            })
+        }
+    })
+}
+
 function* handleSendMessage() {
     while (true) {
         const action = yield take('SEND_MESSAGE')
@@ -144,6 +183,7 @@ function sendMessage(firebase, messageContent){
 export default function* (firebaseRef) {
     firebase = firebaseRef
     yield fork(handleApprove)
+    yield fork(handleCheckAgent)
     yield fork(handleSearch)
     yield fork(handleSendMessage)
   }

@@ -48,20 +48,58 @@ export default (props) => {
     <MainContent>
         {
             typeof mainState.agent !== 'undefined' && mainState.agent.applications.result.map((item, index) => {
-                if(item.approval_status === 0){
-                    return (
-                        <BlockContent style={{backgroundColor: theme_color}} key={index}>
-                            <Div width="95%" padding=".8% 0 0 0" margin="0" backcolor="transparent" justify="flex-start" >
-                                <Text str={item.created_at ? Constants.convert_fulldate(item.created_at._seconds * 1000) : Constants.convert_date(item.updated_at._seconds * 1000)} width="80%" textAlign="left" color="#FFF" margin=".5rem" />
-                                {/* <Anchor href="#" decoration="underline" color="#FFF" text={Constants.EDIT} id="editBtn" /> */}
-                            </Div>
-                            <Div width="100%" backcolor="#FFF" margin="0rem 0 .5rem 0">
-                                <a href="#" onClick={() => handleApplication(item.agent_id)}>
-                                    <Text str={`${item.name.nickname}が販売代理店の登録を申請しています。`} width="80%" textAlign="left" color="#333" margin=".5rem" />
-                                </a>
-                            </Div>
-                        </BlockContent>
-                    )
+                if(item.approval_status === 0 && typeof mainState.user !== 'undefined'){
+                    if(mainState.user.agent_id.toString() === '100000'){
+                        if(item.parentAgentID === '100000'){
+                            return (
+                                <BlockContent style={{backgroundColor: theme_color}} key={index}>
+                                    <Div width="95%" padding=".8% 0 0 0" margin="0" backcolor="transparent" justify="flex-start" >
+                                        <Text str={item.created_at ? Constants.convert_fulldate(Number(item.created_at)) : Constants.convert_fulldate(Number(item.updated_at))} width="80%" textAlign="left" color="#FFF" margin=".5rem" />
+                                        {/* <Anchor href="#" decoration="underline" color="#FFF" text={Constants.EDIT} id="editBtn" /> */}
+                                    </Div>
+                                    <Div width="100%" backcolor="#FFF" margin="0rem 0 .5rem 0">
+                                        <a href="#" onClick={() => handleApplication(item.agent_id)}>
+                                            <Text str={`${item.name.nickname}が販売代理店の登録を申請しています。`} width="80%" textAlign="left" color="#333" margin=".5rem" />
+                                        </a>
+                                    </Div>
+                                </BlockContent>
+                            )
+                        }
+                        else{
+                            if(item.preApprovalStatus !== 0 || item.approval_status_p === 1){
+                                return (
+                                    <BlockContent style={{backgroundColor: theme_color}} key={index}>
+                                        <Div width="95%" padding=".8% 0 0 0" margin="0" backcolor="transparent" justify="flex-start" >
+                                            <Text str={item.created_at ? Constants.convert_fulldate(Number(item.created_at)) : Constants.convert_fulldate(Number(item.updated_at))} width="80%" textAlign="left" color="#FFF" margin=".5rem" />
+                                            {/* <Anchor href="#" decoration="underline" color="#FFF" text={Constants.EDIT} id="editBtn" /> */}
+                                        </Div>
+                                        <Div width="100%" backcolor="#FFF" margin="0rem 0 .5rem 0">
+                                            <a href="#" onClick={() => handleApplication(item.agent_id)}>
+                                                <Text str={`${item.name.nickname}が販売代理店の登録を申請しています。`} width="80%" textAlign="left" color="#333" margin=".5rem" />
+                                            </a>
+                                        </Div>
+                                    </BlockContent>
+                                )
+                            }
+                        }
+                    }
+                    else{
+                        if(item.parentAgentID === mainState.user.agent_id && item.preApprovalStatus === 0 && item.approval_status_p === 0){
+                            return (
+                                <BlockContent style={{backgroundColor: theme_color}} key={index}>
+                                    <Div width="95%" padding=".8% 0 0 0" margin="0" backcolor="transparent" justify="flex-start" >
+                                        <Text str={item.created_at ? Constants.convert_fulldate(Number(item.created_at)) : Constants.convert_fulldate(Number(item.updated_at))} width="80%" textAlign="left" color="#FFF" margin=".5rem" />
+                                        {/* <Anchor href="#" decoration="underline" color="#FFF" text={Constants.EDIT} id="editBtn" /> */}
+                                    </Div>
+                                    <Div width="100%" backcolor="#FFF" margin="0rem 0 .5rem 0">
+                                        <a href="#" onClick={() => handleApplication(item.agent_id)}>
+                                            <Text str={`${item.name.nickname}が販売代理店の登録を申請しています。`} width="80%" textAlign="left" color="#333" margin=".5rem" />
+                                        </a>
+                                    </Div>
+                                </BlockContent>
+                            )
+                        }
+                    }
                 }
             })
         }

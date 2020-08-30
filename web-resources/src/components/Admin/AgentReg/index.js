@@ -173,13 +173,12 @@ export default (props) => {
                               <div className="uk-card uk-card-body uk-card-default " style={{padding: "10px 10px", display: "flex", justifyContent: "space-around"}}>
                                 <FacebookShareButton url={linkUrl} onClick={() => shareUrl()} >
                                   <FacebookIcon size={32} round={true} />
-                                </FacebookShareButton>
-                                {/* <a href="https://m.me/chloe%20john" target="_blank"><FacebookIcon size={32} round={true} /></a> */}
-                                <a href={`https://twitter.com/messages/compose?recipient_id=3805104374&text=${encodeURIComponent(linkUrl)}`} target="_blank"
+                                 </FacebookShareButton>
+                                {/*<a href={`https://twitter.com/messages/compose?recipient_id=3805104374&text=${encodeURIComponent(linkUrl)}`} target="_blank"
                                   className="twitter-dm-button"  data-screen-name="@MDK">
-                                <TwitterIcon size={32} round={true} />(messenger)</a>
+                                <TwitterIcon size={32} round={true} />(messenger)</a> */}
                                 <TwitterShareButton url={linkUrl} >
-                                  <TwitterIcon size={32} round={true} />(sharing)
+                                  <TwitterIcon size={32} round={true} />
                                 </TwitterShareButton>
                                   {/* <img src={`${Constants.LOCAL_IMAGE_URL}shareImg.png`} /> */}
                                 <LineShareButton url={linkUrl} >

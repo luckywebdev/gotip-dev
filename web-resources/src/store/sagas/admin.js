@@ -110,7 +110,7 @@ function* handleNoticeCreate () {
             alertErrorMessage(payload.errMessage)
         }
       } else {
-        if(typeof payload.errCode !== 'undefined')
+        if(typeof error.errCode !== 'undefined')
           alertErrorMessage(error.errCode)
       }
     }
@@ -140,10 +140,153 @@ function* handleNoticeCreate () {
       }
     })
   }
-  
+
+  function* handleUserSearch(){
+    while (true) {
+      const action = yield take('USER_SEARCH');
+      yield put({ type: 'SET_LOADING_TEXT', payload: '処理中' });
+      const { payload, error } = yield call(userSearch, action.payload)
+      if (!error) {
+        yield put({ type: 'SET_LOADING_TEXT', payload: null })
+        if (payload && payload.result === true) {
+            yield put({ type: 'SUCCESSFUL_USER_SEARCH', payload: payload })
+        } else {
+          yield put({ type: 'FAILED_USER_SEARCH', payload: payload })
+          if(typeof payload.errMessage !== 'undefined')
+            alertErrorMessage(payload.errMessage)
+        }
+      } else {
+        if(typeof payload.errCode !== 'undefined')
+          alertErrorMessage(error.errCode)
+      }
+    }
+  }
+
+  function userSearch (filterData) {
+    return new Promise( async (resolve) => {
+      try {
+        console.log("filter_data", filterData);
+        const response = await axios.post('/api/admin/userSearch', filterData)
+          .catch((err) => {
+            console.error(err)
+          })
+        console.log(response)
+        resolve({
+          payload: {
+            result: response.data.result,
+            userList: response.data.userList,
+            errMessage: response.data.error
+          }
+        })
+      } catch (err) {
+        console.error('Crashed at register.', err)
+        resolve({
+          payload: null,
+          error: { errCode: err }
+        })
+      }
+    })
+  }
+
+  function* handleUserDelete(){
+    while (true) {
+      const action = yield take('USER_DELETE');
+      yield put({ type: 'SET_LOADING_TEXT', payload: '処理中' });
+      const { payload, error } = yield call(userDelete, action.payload.uidArray)
+      if (!error) {
+        yield put({ type: 'SET_LOADING_TEXT', payload: null })
+        if (payload && payload.result === true) {
+            yield put({ type: 'SUCCESSFUL_USER_DELETE', payload: payload })
+            yield put({ type: 'USER_SEARCH', payload: action.payload.filterData })
+        } else {
+          yield put({ type: 'FAILED_USER_DELETE', payload: payload })
+          if(typeof payload.errMessage !== 'undefined')
+            alertErrorMessage(payload.errMessage)
+        }
+      } else {
+        if(typeof payload.errCode !== 'undefined')
+          alertErrorMessage(error.errCode)
+      }
+    }
+  }
+
+  function userDelete (uidArray) {
+    return new Promise( async (resolve) => {
+      try {
+        const reqData = {uidArray: uidArray};
+        const response = await axios.post('/api/admin/deleteUser', reqData)
+          .catch((err) => {
+            console.error(err)
+          })
+        console.log(response)
+        resolve({
+          payload: {
+            result: response.data.result,
+            errMessage: response.data.error
+          }
+        })
+      } catch (err) {
+        console.error('Crashed at register.', err)
+        resolve({
+          payload: null,
+          error: { errCode: err }
+        })
+      }
+    })
+  }
+  function* handleCreatorSearch(){
+    while (true) {
+      const action = yield take('CREATOR_SEARCH');
+      yield put({ type: 'SET_LOADING_TEXT', payload: '処理中' });
+      const { payload, error } = yield call(creatorSearch, action.payload)
+      if (!error) {
+        yield put({ type: 'SET_LOADING_TEXT', payload: null })
+        if (payload && payload.result === true) {
+            yield put({ type: 'SUCCESSFUL_CREATOR_SEARCH', payload: payload })
+        } else {
+          yield put({ type: 'FAILED_CREATOR_SEARCH', payload: payload })
+          if(typeof payload.errMessage !== 'undefined')
+            alertErrorMessage(payload.errMessage)
+        }
+      } else {
+        if(typeof payload.errCode !== 'undefined')
+          alertErrorMessage(error.errCode)
+      }
+    }
+  }
+
+  function creatorSearch (agentID) {
+    return new Promise( async (resolve) => {
+      try {
+        console.log("filter_data", agentID);
+        const response = await axios.post('/api/admin/creatorSearch', {agentID})
+          .catch((err) => {
+            console.error(err)
+          })
+        console.log(response)
+        resolve({
+          payload: {
+            result: response.data.result,
+            creatorList: response.data.creatorList,
+            errMessage: response.data.error
+          }
+        })
+      } catch (err) {
+        console.error('Crashed at search.', err)
+        resolve({
+          payload: null,
+          error: { errCode: err }
+        })
+      }
+    })
+  }
+
 export default function* (firebaseRef) {
     firebase = firebaseRef
     yield fork(handleNoticeCreate)
     yield fork(handleNoticeUpdate)
+    yield fork(handleUserSearch)
     yield fork(handleGetNotice)
+    yield fork(handleUserDelete)
+    yield fork(handleCreatorSearch)
   }

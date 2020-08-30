@@ -1,4 +1,5 @@
 import { call, put, fork, take } from 'redux-saga/effects'
+import axios from 'axios'
 import { alertErrorMessage } from './commonAlert'
 
 
@@ -17,11 +18,18 @@ export default function* handleSignOut (firebase) {
 }
 
 function signOut (firebase) {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     try {
+      const res = await axios.post('/api/user/logout', {uid: localStorage.getItem('uid')})
+      .catch(err => {
+        console.log(err)
+      })
+      console.log("logout====>", res.data);
       firebase.auth().signOut()
-      .then((result) => {
-        resolve({})
+      .then(async (result) => {
+        resolve({
+          result: true
+        })
       })
       .catch(err => {
         resolve({

@@ -6,7 +6,7 @@ import UIkit from 'uikit';
 import styled from 'styled-components';
 import media from 'styled-media-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faSearch, faSortAlphaUp, faSortAlphaDown } from '@fortawesome/free-solid-svg-icons'
 import agent from '../../../store/actions/agent';
 import Btn from '../../UI/btn';
 import Img from '../../UI/img';
@@ -82,7 +82,8 @@ const ApplicationStatus = (props) => {
 
 export default (props) => {
   let dispatch = useDispatch();
-  const [agentListSource, setAgentListSource] = useState([])
+  const [sortDirection, setSortDirection] = useState("asc");
+  const [agentListSource, setAgentListSource] = useState([]);
   const [agentList, setAgentList] = useState([]);
   const [name, setName] = useState("");
   const [agentLevel, setAgentLevel] = useState('3');
@@ -121,6 +122,18 @@ export default (props) => {
       setAgentList(agetnListData);
 
     }
+
+    const handleSort = (sortField, subSortField = null) => {
+      if(sortDirection === "asc"){
+        setSortDirection('desc');
+      }
+      else{
+        setSortDirection('asc');
+      }
+      const agentListTemp = agentList.sort(Constants.compareValues(sortField, sortDirection, subSortField));
+      setAgentList(agentListTemp);
+    }
+
     return (
     <MainContent>
         <BlockContent>
@@ -178,27 +191,27 @@ export default (props) => {
                 <table className="uk-table uk-table-middle uk-table-divider uk-table-hover">
                   <thead>
                       <tr>
-                          <th className="uk-width-small">次</th>
-                          <th className="uk-width-small">所属</th>
-                          <th>{Constants.AGENT_NAME}</th>
+                          <th className="uk-width-small" onClick={() => handleSort('agentLevel')} style={{cursor: "pointer"}} >次<FontAwesomeIcon icon={ sortDirection === 'asc' ? faSortAlphaUp : faSortAlphaDown } color="#787C7F"/></th>
+                          <th className="uk-width-small" onClick={() => handleSort('parentAgentName')} style={{cursor: "pointer"}} >所属<FontAwesomeIcon icon={ sortDirection === 'asc' ? faSortAlphaUp : faSortAlphaDown } color="#787C7F"/></th>
+                          <th onClick={() => handleSort('name', 'nickname')} style={{cursor: "pointer"}} >{Constants.AGENT_NAME}<FontAwesomeIcon icon={ sortDirection === 'asc' ? faSortAlphaUp : faSortAlphaDown } color="#787C7F"/></th>
                           <th>{Constants.CHARGE_PERSON_TEL}</th>
                           <th>前月売上</th>
-                          <th>登録日</th>
+                          <th onClick={() => handleSort('created_at')} style={{cursor: "pointer"}}>登録日<FontAwesomeIcon icon={ sortDirection === 'asc' ? faSortAlphaUp : faSortAlphaDown } color="#787C7F"/></th>
                           <th className="uk-width-small">ステータス</th>
                           <th>今月売上</th>
                       </tr>
                   </thead>
                   <tbody>
                     { (agentList && agentList.length > 0) ? agentList.map((item, index) => {
-                      console.log("agentlist===>", item, agentList);
+                      console.log("agentlist===>", item.created_at);
                       return (
                         <tr key={index}>
                           <td>{`${item.agentLevel}次`}</td>
-                          <td>{Number(item.agentLevel) > 1 ? `${ Number(item.agentLevel) - 1 }次` : "MDK"}</td>
+                          <td>{item.parentAgentName}</td>
                           <td>{item.name.nickname}</td>
                           <td>{item.delegate.tel}</td>
                           <td></td>
-                          <td>{item.created_at ? Constants.convert_date(item.created_at._seconds * 1000) : Constants.convert_date(item.updated_at._seconds * 1000)}</td>
+                          <td>{item.created_at ? Constants.convert_date(Number(item.created_at)) : Constants.convert_date(Number(item.updated_at))}</td>
                           <td>{item.approval_status !== 3 && (<ApplicationStatus status={item.approval_status ? item.approval_status : 0} />) }</td>
                           <td></td>
                         </tr>

@@ -12,6 +12,9 @@ import AdminAgentSearch from './container/Admin/agentSearch';
 import AdminAgentSaleSearch from './container/Admin/agentSaleSearch';
 import AdminAgentCompensation from './container/Admin/agentCompensation';
 import AdminNoticeEdit from './container/Admin/gotipManange/noticEdit';
+import AdminUserManage from './container/Admin/gotipManange/userManage';
+
+import AdminCreatorReg from './container/Admin/creator/creatorReg';
 
 import Main from './container/Main';
 import OtherView from './container/OtherView';
@@ -56,7 +59,14 @@ class App extends Component {
             <PrivateRoute path="/admin/agent/saleSearch" exact component={AdminAgentSaleSearch} />
             <PrivateRoute path="/admin/agent/compensation" exact component={AdminAgentCompensation} />
 
+            <PrivateRoute path="/admin/creator/register" exact component={AdminCreatorReg} />
+            <PrivateRoute path="/admin/creator/searchCreator" exact component={AdminCreatorReg} />
+            <PrivateRoute path="/admin/creator/onlineCreator" exact component={AdminCreatorReg} />
+            <PrivateRoute path="/admin/creator/saleCreator" exact component={AdminCreatorReg} />
+            <PrivateRoute path="/admin/creator/compensation" exact component={AdminCreatorReg} />
+
             <PrivateRoute path="/admin/management/noticeEdit" exact component={AdminNoticeEdit} />
+            <PrivateRoute path="/admin/management/userManage" exact component={AdminUserManage} />
 
             <PrivateRoute path="/main" exact component={Main} />
             <Route path="/main/:uid" exact component={OtherView} />

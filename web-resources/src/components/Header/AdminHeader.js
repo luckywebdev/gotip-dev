@@ -4,6 +4,7 @@ import { useHistory } from 'react-router';
 
 import * as Constants from '../../Constants';
 import main from '../../store/actions/main';
+import agent from '../../store/actions/agent';
 
 import UIkit from 'uikit'
 import UIkitIcons from 'uikit/dist/js/uikit-icons'
@@ -43,6 +44,7 @@ export default (props) => {
   useEffect(() => {
     if(localStorage.getItem('uid')){
         dispatch(main.getAccountInfo(localStorage.getItem('uid')))
+        dispatch(agent.tryCheckAgent());
     }
   }, [])
 

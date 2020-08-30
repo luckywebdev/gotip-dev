@@ -78,13 +78,15 @@ export default (props) => {
                             applicationTemp++;
                         }
                         else{
-                            if(item.preApprovalStatus !== 0){
+                            if(item.preApprovalStatus !== 0 || item.approval_status_p === 1){
                                 applicationTemp++;
                             }
                         }
                     }
                     else{
-                        applicationTemp++;
+                        if(item.parentAgentID === mainState.user.agent_id && item.preApprovalStatus === 0 && item.approval_status_p === 0){
+                            applicationTemp++;
+                        }
                     }
                     setApplicationCount(applicationTemp);
                 }
@@ -99,7 +101,7 @@ export default (props) => {
                     {
                         Constants.ADMIN_SIDE_MENU_LIST.map((item, index) => {
                             const open_class = history.location.pathname.includes(item.url) ? "uk-open" : "";
-                            const parent_class = item.child.length > 0 ? "uk-parent uk-open" : "";
+                            const parent_class = item.child.length > 0 ? "uk-parent" : "";
                             let agent_badge = "";
                             if(item.url === '/admin/agent' && applicationCount > 0){
                                 agent_badge = (<span style={badgeIcon}>{applicationCount}</span>)
@@ -112,7 +114,7 @@ export default (props) => {
                                             item.child.length > 0 ? (
                                                 <a href="#" style={{...linkStyle, color: history.location.pathname.includes(item.url) ? "#D74A74" : "#FFF", borderLeft: history.location.pathname.includes(item.url) ? "2px solid #FF5285" : "none" }}><span style={{display: "inline-flex"}}>{item.name}{agent_badge}</span></a>
                                             ) : (
-                                                <a href="#" style={{...linkStyle, color: history.location.pathname.localeCompare(`${item.url}`) === 0 ? "#D74A74" : "#FFF", borderLeft: history.location.pathname.includes(item.url) ? "2px solid #FF5285" : "none" }} onClick={() => history.push(`${item.url}`)}><span style={{display: "inline-flex"}}>{item.name}{agent_badge}</span></a>
+                                                <a href="#" style={{...linkStyle, color: history.location.pathname.localeCompare(`${item.url}`) === 0 ? "#D74A74" : "#FFF", borderLeft: history.location.pathname.includes(item.url) ? "2px solid #FF5285" : "none" }} onClick={item.url !== '' ? () => history.push(`${item.url}`) : null}><span style={{display: "inline-flex"}}>{item.name}{agent_badge}</span></a>
                                             )
                                         }
                                         {item.child.length > 0 && (
@@ -124,13 +126,13 @@ export default (props) => {
                                                         agent_child_badge = (<span style={badgeIcon}>{applicationCount}</span>)
                                                     }
                                                     return (
-                                                        <>
+                                                        <div key={subindex}>
                                                             {Number(agentLevel) <= Number(subitem.allowdLevel) && (
                                                                 <li key={subindex}>
-                                                                    <a href="#" style={{...linkStyle, lineHeight: "1.5", color: history.location.pathname.localeCompare(`${item.url}${subitem.url}`) === 0 ? "#D74A74" : "#FFF" }} onClick={() => history.push(`${item.url}${subitem.url}`)}><span style={{display: "inline-flex"}}>{`>  ${subitem.name}`}{agent_child_badge}</span></a>
+                                                                    <a href="#" style={{...linkStyle, lineHeight: "1.5", color: history.location.pathname.localeCompare(`${item.url}${subitem.url}`) === 0 ? "#D74A74" : "#FFF" }} onClick={subitem.url !== '' ? () => history.push(`${item.url}${subitem.url}`) : null}><span style={{display: "inline-flex"}}>{`>  ${subitem.name}`}{agent_child_badge}</span></a>
                                                                 </li>
                                                             )}
-                                                        </>
+                                                        </div>
                                                     )
                                                 })                                              
                                             }
