@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { useHistory, useParams } from 'react-router';
+
 import * as Constants from '../../../Constants';
 import admin from '../../../store/actions/admin';
+import main from '../../../store/actions/main';
 import UIkit from 'uikit';
 import Datetime from "react-datetime";
 import moment from "moment";
@@ -83,6 +86,7 @@ const filterOptions = ["先月", "当月", "翌月"];
 
 export default (props) => {
     let dispatch = useDispatch();
+    let history = useHistory();
     const [filter, setFilter] = useState(0);
     const [creatorListSource, setCreatorListSource] = useState([])
     const [creatorList, setCreatorList] = useState([]);
@@ -118,7 +122,12 @@ export default (props) => {
             setEndDate(moment.format("YYYY-MM-DD"));
     };
 
-    
+    const handlePersonalData = (uid) => {
+        let timestamp = new Date(startDate).getTime();
+        dispatch(main.getOtherAgentAccountInfo(uid));
+        history.push(`/admin/creator/personalSale/${uid}_${timestamp}`);
+    }
+
     return (
     <MainContent>
         <BlockContent>
@@ -189,7 +198,7 @@ export default (props) => {
                                 creatorList.length > 0 && creatorList.map((item, index) => {
                                     return (
                                         <tr key={index}>
-                                            <td>{item.name.nickname}</td>
+                                            <td><a href="#" onClick={() => handlePersonalData(item.userID)} >{item.name.nickname}</a></td>
                                             <td>40,000</td>
                                             <td>20,000</td>
                                             <td>20,000</td>
@@ -208,7 +217,7 @@ export default (props) => {
             </Div>
             <Div width="100%" height="80%" margin="0 .5rem 2% .5rem" backcolor="transparent" direction="row" alignItems="center" justify="center" >
                 <Btn width="12%" radius="5px"  backcolor="#4E8338" color="#FFF" border="none" padding=".5rem 1rem" margin="1rem .2rem" text="Excel CSV" />
-                <Btn width="12%" radius="5px"  backcolor="#9B8B68" color="#FFF" border="none" padding=".5rem 1rem" margin="1rem .2rem" text="全銀協フォーマット" />
+                {/* <Btn width="12%" radius="5px"  backcolor="#9B8B68" color="#FFF" border="none" padding=".5rem 1rem" margin="1rem .2rem" text="全銀協フォーマット" /> */}
             </Div>
 
         </BlockContent>

@@ -25,7 +25,7 @@ class signInFaceBook extends Component {
     }
     else{
       const { tryFacebookSignup } = this.props;
-      tryFacebookSignup();
+      tryFacebookSignup(this.props.agentID);
     }
   }
 

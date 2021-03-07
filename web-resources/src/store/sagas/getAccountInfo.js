@@ -12,6 +12,7 @@ function* handleUserGetAccountInfo () {
     yield put({ type: 'SET_LOADING_TEXT', payload: 'データロード中' })
     if (!error && typeof payload.account !== "undefined") {
       yield put({ type: 'SET_ACCOUNT_INFO', payload: payload.account ? payload.account : {} })
+      yield put({type: 'REFRESH_POINTS'});
       yield put({ type: 'CHANGE_LOGIN_STATE', payload: { isLogedIn: true, gettingState: true } })
       yield put({ type: 'SET_LOADING_TEXT', payload: null })
     } else {
@@ -118,7 +119,7 @@ function* handleOtherUserGetAccountInfo () {
     const { payload, error } = yield call(getOtherAccountInfo, firebase, action.payload)
     yield put({ type: 'SET_LOADING_TEXT', payload: 'データロード中' })
     if (!error) {
-      yield put({ type: 'SET_OTHER_ACCOUNT_INFO', payload: payload.account ? payload.account : {} })
+      yield put({ type: 'SET_OTHER_ACCOUNT_INFO', payload: payload ? payload : {} })
       yield put({ type: 'SET_LOADING_TEXT', payload: null })
     } else {
       alertErrorMessage(error.error)
@@ -132,6 +133,7 @@ async function getOtherAccountInfo (firebase, uid) {
   return new Promise(async (resolve, reject) => {
     try{
       const response = await axios.get(`/api/user/profile/${uid}`);
+      console.log("point_response", response);
       const data = response.data ? response.data : {}
       if (data.account) data.account.userid = uid
       resolve({
@@ -170,11 +172,58 @@ async function getOtherAgentAccountInfo (firebase, uid) {
     try{
       const response = await axios.get(`/api/user/profile/${uid}`);
       const data = response.data ? response.data : {}
-      if (data.account) data.account.userid = uid
+      if (data.account) data.account.userid = uid;
+      console.log("getotherAgentAccountData", data);
       resolve({
         payload: data,
         error: null
       })
+    }
+    catch(err) {
+      reject({
+        payload: null,
+        error: err
+      })
+    }
+  })
+}
+
+function* handleGetCreatorList() {
+  while (true) {
+    const action = yield take('GET_CREATOR_LIST')
+    const { payload, error } = yield call(getCreatorList, firebase)
+    yield put({ type: 'SET_LOADING_TEXT', payload: 'データロード中' })
+    if (!error) {
+      yield put({ type: 'SET_CREATOR_LIST', payload: payload ? payload : [] })
+      yield put({ type: 'SET_LOADING_TEXT', payload: null })
+    } else {
+      if(typeof error.error !== 'undefined'){
+        alertErrorMessage(error.error)
+      }
+      localStorage.clear();
+      window.location.reload()
+    }
+  }
+}
+
+function getCreatorList(firebase){
+  return new Promise (async (resolve, reject) => {
+    try{
+      const response = await axios.get(`/api/user/getCreator`);
+      const data = response.data ? response.data : {};
+      console.log("creatorList", data);
+      if(data.result){
+        resolve({
+          payload: data,
+          error: null
+        })
+      }
+      else{
+        resolve({
+          payload: null,
+          error: payload
+        })
+      }
     }
     catch(err) {
       reject({
@@ -190,6 +239,7 @@ export default function* (firebaseRef) {
   firebase = firebaseRef
   yield fork(handleUserGetAccountInfo)
   yield fork(handleGetChildAgent)
+  yield fork(handleGetCreatorList)
   yield fork(handleOtherAgentGetAccountInfo)
   yield fork(handleOtherUserGetAccountInfo)
 }

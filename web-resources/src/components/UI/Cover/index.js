@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux'
 import userEdit from '../../../store/actions/userEdit';
-
+import * as Constants from '../../../Constants';
 import ImageUploading from "react-images-uploading";
 import UIkit from 'uikit'
 import UIkitIcons from 'uikit/dist/js/uikit-icons'
@@ -68,9 +68,35 @@ export default (props) => {
 
   }
 
+  const onChangeHandler = () => {
+    document.getElementById("cover_image").click();
+  }
+
+  const onChangeImage = (e) => {
+    if (e.target && e.target.files && e.target.files[0] && e.target.files[0].type.match(/image/) && e.target.files[0].size < 10000000) {
+
+      let imageData = { file: e.target.files[0]};
+      const fileType = imageData.file.name.split('.').pop();
+      const freader = new FileReader()
+      
+      freader.onload = async loaded => {
+        if (freader.result) {
+          const imageBlob = await Constants.convertToBlobPng(freader.result, fileType)
+          imageData.dataURL = imageBlob;
+          document.getElementById("coverImgShow").src = freader.result;
+          console.log("imgageData====>", imageData);
+        }
+      }
+
+      freader.readAsDataURL(e.target.files[0]);
+
+      setCoverImage(imageData);
+    }
+  }
+
   return (
     <CoverDiv className="uk-cover-container">
-        <Img src={coverImgUrl} width="100%" maxHeight='150px' alt="cover" uk-cover />
+        <Img src={coverImgUrl} width="100%" maxHeight='150px' minHeight="150px" alt="cover" uk-cover />
         {
          props.editable ?  (<Btn text="カバー写真を変更" backcolor="transparent" border="1px solid #FFF" color="#FFF" radius="20px" btnType="rounded" position="absolute" top="5px" right="10px" onClick={() => setEditable(!editable)} />) : ''
         }
@@ -84,8 +110,12 @@ export default (props) => {
                 </div>
               ) : null
             }
+            <div className="uk-flex uk-flex-center" style={{width: "80%", height: "200px", zIndex: "2000", margin: 'auto', border: '1px solid #ddd'}}    >
+              <img src={coverImgUrl} alt="avatar" id="coverImgShow" onClick={() => onChangeHandler()} />
+              <input type="file" style={{display: "none"}} id="cover_image" onChange={(e) => onChangeImage(e)} />
+            </div>
 
-            <ImageUploading
+            {/* <ImageUploading
               onChange={(imageList) => setCoverImage(imageList[0])}
               maxFileSize={maxMbFileSize}
               // acceptType={["jpg", "gif", "png"]}
@@ -103,7 +133,7 @@ export default (props) => {
                   return (<div style={{width: "165px", height: "165px", zIndex: "2000", margin: 'auto', border: '1px solid #ddd'}} onClick={onImageUpload}></div>);
                 }
               }}
-            </ImageUploading>
+            </ImageUploading> */}
           </PictureEditSection>
           <div className="uk-flex uk-flex-center uk-margin-top">
             <Btn width="25%" radius="20px" backcolor="#30AA89" fontSize=".7rem" padding=".5rem 2rem" onClick={ PhotoUpdate } margin="1.5rem auto .5rem auto" text="写真をアップロードする" btnType="rounded" />

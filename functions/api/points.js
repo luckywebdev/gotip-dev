@@ -37,6 +37,25 @@ module.exports = async function (adminRef, dbRef, req, res) {
         res.send(false)
       })
       break
+    case 'sendChip':
+      await sendChip(req.body)
+      .then((rst) => {
+        console.log("result_api", rst)
+        res.send(rst);
+      })
+      .catch(err => {
+        console.log("result_api", err)
+        res.send(err)
+      })
+    case 'convertPoints':
+      await convertPoints(req.body)
+      .then((rst) => {
+        res.send(rst);
+      })
+      .catch(err => {
+        console.log("result_api", err)
+        res.send(err)
+      })
     default:
       res.end()
   }
@@ -118,119 +137,87 @@ function createRegDate () {
   return [currentDate, expireDate, displayExpireDate, timestamp]
 }
 
+function sendChip (chipDatas) {
+  return new Promise (async (resolve, reject) => {
+    const currentTime = new Date().getTime();
+    let chipData = chipDatas;
+    chipData.timestamp = currentTime;
+    chipData.year = new Date().getFullYear();
+    chipData.month = new Date().getMonth() + 1;
+    chipData.date = new Date().getDate();
+    const sendPointRef = db.collection('points').doc(chipData.sendID);
+    const recPointRef = db.collection('points').doc(chipData.recID);
+    console.log("chipData===>", chipData);
+    db.runTransaction(async (t) => {
+      const sendDoc = await t.get(sendPointRef);
+      if(sendDoc.exists){
+        let sendPointData = sendDoc.data();
+        let recPointData = {data: {normal: {value: 0}, subscription: {value: 0}}, saleData: {normal: {value: 0}, subscription: {value: 0}}, log: []};
+        const recDoc = await t.get(recPointRef);
+        if(recDoc.exists){
+          recPointData = recDoc.data();
+        }
+        chipData.direction = 0;
+        sendPointData.log.push(chipData);
+        chipData.direction = 1;
+        recPointData.log.push(chipData);
+        sendPointData.data[chipData.chipType].value -= chipData.chipAmount;
+        console.log("sendPoint1====>", sendPointData.data[chipData.chipType]);
+        if(typeof recPointData.saleData[chipData.chipType].value !== 'undefined'){
+          recPointData.saleData[chipData.chipType].value += chipData.chipAmount;
+          console.log("sendPoint2====>", recPointData.saleData[chipData.chipType].value);
+        }
+        else{
+          recPointData.saleData[chipData.chipType].value = chipData.chipAmount;
+          console.log("sendPoint3====>", recPointData.saleData[chipData.chipType].value);
+        }
+        console.log("sendPoint4====>", sendPointData);
+        t.update(sendPointRef, sendPointData);
+        t.update(recPointRef, recPointData);
+      }
+    })
+    .then(() => {
+      resolve({
+        result: true
+      })
+    })
+    .catch(err => {
+      reject({
+        result: false,
+        err
+      });
+    })
+  })
 
-// function createRegData (body) {
-//   const regData = {
-//     sex: body.sex || null,
-//     email: body.email || null,
-//     tel: body.tel || null
-//   }
-//   if (body.name && body.ruby) regData.name = {
-//     value: body.name || null,
-//     ruby: body.ruby || null,
-//     nickname: body.nickname || null
-//   }
-//   if (body.birthyear && body.birthmonth && body.birthday) regData.birthdate = {
-//     year: body.birthyear,
-//     month: body.birthmonth,
-//     day: body.birthday
-//   }
-//   return regData
-// }
-// function updateAccountInfo (body, uid) {
-//   return new Promise(async (resolve, reject) => {
-//     const authInfo = {}
-//     if (body.password && body.password.length > 0) authInfo.password = body.password
-//     if (body.email && body.email.length > 0) authInfo.email = body.email
-//     const userRecord = await admin.auth().updateUser(uid, authInfo)
-//       .catch(error => {
-//         console.error(error)
-//         reject(error)
-//       })
-    
-//     const regData = createRegData(body)
-//     // regData.premium = false
-//     // regData.auth_level = 1
-//     const userRef = db.collection('users').doc(uid)
-//     db.runTransaction(async (t) => {
-//       await t.get(userRef)
-//       t.set(userRef, regData, { merge: true })
-//     })
-//     .then(() => {
-//       resolve(true)
-//     }).catch((err) => {
-//       reject(err)
-//     })
-//   })
-// }
+}
 
-
-// async function updateConfig (body, uid) {
-//   const configRef = db.collection('config').doc(uid)
-//   let result
-//   if (configRef && typeof body.data === 'object') result = await configRef.set(body.data, { merge: true })
-//   return result
-// }
-
-// async function getUserProfile (uid) {
-//   const userRef = db.collection('users').doc(uid)
-//   const configRef = db.collection('config').doc(uid)
-//   let result = { uid }
-//   await configRef.get()
-//     .then((doc) => {
-//       if (doc.exists) {
-//         const data = doc.data()
-//         result.isPublished = data.profile_published ? true : false
-//       } else {
-//         result.isPublished = null
-//       }
-//     })
-  
-//   await userRef.get()
-//     .then((doc) => {
-//       if (doc.exists) {
-//         const data = doc.data()
-//         console.log('Required Profile Data.', data)
-        
-//         result.authLevel = data.authLevel ? data.authLevel : 1
-//         if (result.isPublished) {
-//           result.profile = data.profile ? data.profile : ''
-//           result.profileImgUrl = data.profileImgUrl ? data.profileImgUrl : ''
-//           result.nickname = data.name && data.name.nickname ? data.name.nickname : ''
-//           result.bleDescription = data.bleDescription ? data.bleDescription : ''
-//         }
-//       }
-//       result.isExists = doc.exists
-//     })
-  
-//   return result
-// }
-
-// function setUserProfile (userData, uid) {
-//   const userRef = db.collection('users').doc(uid)
-//   let result = {}
-
-//   return new Promise(async resolve => {
-//     await userRef.get()
-//       .then(async (doc) => {
-//         if (doc.exists) {
-//           const data = doc.data()
-//           if (userData.profile) data.profile = userData.profile
-//           if (userData.profileImgUrl) data.profileImgUrl = userData.profileImgUrl
-//           if (userData.nickname) data.nickname = userData.nickname
-//           if (userData.bleDescription) data.bleDescription = userData.bleDescription
-          
-//           result.result = await userRef.set(data, { merge: true })
-//           .then(() => {
-//             return true
-//           })
-//           .catch(err => {
-//             console.error('Error at update profile data.', err)
-//             return false
-//           })
-//         }
-//         result.isExists = doc.exists
-//         resolve(result)
-//       })
-//   })
-// }
+function convertPoints(body) {
+  return new Promise (async (resolve, reject) => {
+    const pointRef = db.collection('points').doc(body.uid);
+    console.log("pointConvertData", body);
+    db.runTransaction(async (t) => {
+      const pointData = await t.get(pointRef);
+      if(pointData.exists){
+        let normalPoint = pointData.data();
+        if(normalPoint.data.normal.value)
+          normalPoint.data.normal.value += body.points;
+        else
+          normalPoint.data.normal.value = body.points;
+        normalPoint.saleData.normal.value = 0;
+        normalPoint.saleData.subscription.value = 0;
+        t.update(pointRef, normalPoint);
+      }
+    })
+    .then(() => {
+      resolve({
+        result: true
+      })
+    })
+    .catch(err => {
+      reject({
+        result: false,
+        err
+      });
+    })
+  })
+}

@@ -30,6 +30,19 @@ const MainContent = styled.div`
 class Signup extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      agentID: null
+    }
+  }
+
+  componentDidMount() {
+    const params = this.props.match.params;
+    if(Object.keys(params).length > 0 && params.constructor === Object){
+      console.log("params-agentID", params);
+      this.setState({
+        agentID: params.agentID
+      })
+    }
   }
 
   render(){
@@ -39,7 +52,7 @@ class Signup extends Component {
             <StyledContainer>
               <Logo width='87px' height='120px' src={`${Constants.LOCAL_IMAGE_URL}login_logo.png`} alt='login_logo' margin="1rem auto .5rem auto" />
               <MainContent>
-                <SignUp {...this.props} />
+                <SignUp {...this.props} agentID={this.state.agentID} />
               </MainContent>
             </StyledContainer>
           </div>

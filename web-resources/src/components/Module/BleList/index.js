@@ -215,7 +215,7 @@ export default (props) => {
         );
     }
 
-    const bleTitle = (typeof mainState.user !== 'undefined' && Object.keys(mainState.user).length !== 0 && mainState.user.constructor === Object) ? mainState.user.name.nickname + "の所有機器一覧" : "BLE機器一覧"
+    const bleTitle = (typeof mainState.user !== 'undefined' && typeof mainState.user.name !== 'undefined' && Object.keys(mainState.user).length > 0 && mainState.user.constructor === Object) ? mainState.user.name.nickname + "の所有機器一覧" : "BLE機器一覧"
     return (
       <Card width="100%" margin="10px" height="300px">
         <h4 className="uk-text-bold uk-flex uk-flex-between uk-flex-middle"><span>{bleTitle}</span> { edit }</h4>

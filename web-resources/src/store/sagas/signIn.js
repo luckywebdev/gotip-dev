@@ -19,7 +19,13 @@ function* handleUserSignIn () {
           alertErrorMessage(payload.errMessage);
         }
         if(payload.action === "register"){
-          window.location.href = "./registration?code=" + payload.uid;
+          console.log("payload=", payload);
+          if(payload.agent_id !== undefined && payload.agent_id !== '' && payload.agent_id !== null){
+            window.location.href = "./registration?code=" + payload.uid + "&agent=" + payload.agent_id;
+          }
+          else{
+            window.location.href = "./registration?code=" + payload.uid;
+          }
         }
         else if(payload.action === "land"){
           window.location.href = "./signup";
@@ -58,7 +64,7 @@ function signIn (firebase, userInfo) {
                   result: true,
                   uid: response.user.uid,
                   isVerified: response.user.emailVerified,
-                  auth_level: res.data.auth_level
+                  auth_level: res.data.auth_level,
                 },
                 error: null
               }
@@ -69,7 +75,8 @@ function signIn (firebase, userInfo) {
                   result: false,
                   action: "register",
                   uid: response.user.uid,
-                  isVerified: response.user.emailVerified
+                  isVerified: response.user.emailVerified,
+                  agent_id: res.data.agent_id
                 },
                 error: null
               }
@@ -240,7 +247,12 @@ function* handleGoogleLogin () {
           alertErrorMessage(payload.errMessage);
         }
         if(payload.action === "register"){
-          window.location.href = "./registration?code=" + payload.uid;
+          if(payload.agent_id !== undefined && payload.agent_id !== '' && payload.agent_id !== null){
+            window.location.href = "./registration?code=" + payload.uid + "&agent=" + payload.agent_id;
+          }
+          else{
+            window.location.href = "./registration?code=" + payload.uid;
+          }
         }
         else if(payload.action === "land"){
           window.location.href = "./signup";
@@ -289,7 +301,8 @@ function googleLogin(firebase) {
               result: false,
               action: "register",
               uid: response.user.uid,
-              isVerified: response.user.emailVerified
+              isVerified: response.user.emailVerified,
+              agent_id: res.data.agent_id
             },
             error: null
           }
@@ -395,7 +408,8 @@ function facebookLogin(firebase) {
               result: false,
               action: "register",
               uid: response.user.uid,
-              isVerified: response.user.emailVerified
+              isVerified: response.user.emailVerified,
+              agent_id: res.data.agent_id
             },
             error: null
           }
@@ -495,7 +509,8 @@ function twitterLogin(firebase) {
               result: false,
               action: "register",
               uid: response.user.uid,
-              isVerified: response.user.emailVerified
+              isVerified: response.user.emailVerified,
+              agent_id: res.data.agent_id
             },
             error: null
           }

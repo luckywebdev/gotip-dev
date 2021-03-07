@@ -88,7 +88,7 @@ export default (props) => {
     const [agentID, setAgentID] = useState(100000);
     const [agentLevel, setAgentLevel] = useState(0);
     const [emailContentShow, setEmailContentShow] = useState(false);
-    const [linkUrl, setLinkUrl] = useState(`${Constants.BASE_URL}admin/agent/registration/100000`);
+    const [linkUrl, setLinkUrl] = useState(`${Constants.BASE_URL}signup/100000`);
     const mainState = useSelector( state => state.main );
     const theme_color = typeof mainState.user !== 'undefined' && typeof mainState.user.theme_color !== 'undefined' ? mainState.user.theme_color : "#30AA89";
     const shareUrl = () => {
@@ -99,7 +99,7 @@ export default (props) => {
       if(typeof mainState.user !== 'undefined' && mainState.user.auth_level === 3){
         setAgentLevel(mainState.user.agentLevel);
         setAgentID(mainState.user.agent_id);
-        setLinkUrl(`${Constants.BASE_URL}admin/agent/registration/${mainState.user.agent_id}`)
+        setLinkUrl(`${Constants.BASE_URL}signup/${mainState.user.agent_id}`)
       }
     }, [mainState.user])
 

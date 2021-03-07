@@ -24,7 +24,8 @@ export default (state = initialState, action) => {
       newState.agent = action.payload
       break;
     case 'SET_OTHER_ACCOUNT_INFO':
-      newState.user = action.payload
+      newState.otherUser = action.payload.account
+      newState.otherPoints = action.payload.pointdata
       newState.gettingState = true
       break;
     case 'SET_OTHER_AGENT_ACCOUNT_INFO':
@@ -32,6 +33,8 @@ export default (state = initialState, action) => {
       newState.otherUserBank = action.payload.bank
       newState.gettingState = true
       break;
+    case 'SET_CREATOR_LIST':
+      newState.creatorList = action.payload.creatorList
     case 'SET_REDIRECT':
       newState.historyRedirect = action.payload
       break;
@@ -44,12 +47,18 @@ export default (state = initialState, action) => {
       break;
     case 'SET_POINTS_INFO':
       newState.points = action.payload ? action.payload : {}
-      newState.points.amount = Array.isArray(action.payload.data) ?
-        action.payload.data.reduce((prev, current, i) => {
-          const prevValue = typeof prev === 'object' && !isNaN(prev.value) ? prev.value : !isNaN(prev) ? prev : 0
-          const currentValue = current && !current.expired && typeof current.value === 'number' ? current.value : 0
-          return prevValue + currentValue
-        }) : null
+      // newState.points.amount = Array.isArray(action.payload.data) ?
+      //   action.payload.data.reduce((prev, current, i) => {
+      //     const prevValue = typeof prev === 'object' && !isNaN(prev.value) ? prev.value : !isNaN(prev) ? prev : 0
+      //     const currentValue = current && !current.expired && typeof current.value === 'number' ? current.value : 0
+      //     return prevValue + currentValue
+      //   }) : null
+      break;
+    case 'SEND_CHIP_SUCCESSFULL':
+      newState.chipResult = true;
+      break;
+    case 'CONVERT_SUCCESSFULL':
+      newState.convertPoint = true;
       break;
     case 'SET_LAST_LOGIN_TIME':
       newState.lastLogin = action.payload
@@ -70,6 +79,10 @@ export default (state = initialState, action) => {
       break;
     case 'SET_POSTED_INFORMATION':
       newState.postedInfo = action.payload.infos;
+      break;
+    case 'CHANGE_PAGE':
+      newState.selectedItem = action.payload.id
+      newState.parentItem = action.payload.parentID
       break;
     default:
 

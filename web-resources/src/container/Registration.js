@@ -54,13 +54,19 @@ class Registration extends Component {
     const params = new URLSearchParams(this.props.location.search)
     this.state.uid = params.get("code");
     this.state.times = params.get('time');
+    // if(params.get('agent') !== null){
+    //   const  { checkUser } = this.props;
+    //   checkUser(this.state.uid, this.state.times);
+    // }
   }
 
   goSignupStep = (index) => {
-    if(index === 1)
-      this.props.history.push(`/regCreator`);
-    else if(index === 0)
-      this.props.history.push(`/regFan`);
+    if(this.state.termsAgree){
+      if(index === 1)
+        this.props.history.push(`/regCreator`);
+      else if(index === 0)
+        this.props.history.push(`/regFan`);
+    }
   }
 
   CheckUser = () => {
@@ -84,6 +90,10 @@ class Registration extends Component {
     else if(mainState.isLogedIn === true && mainState.loadingMessage === null){
       loadingState = true;
       loadingMessage = null;
+      const params = new URLSearchParams(this.props.location.search)
+      if(params.get('agent') !== null){
+        this.props.history.push(`/regCreator/${params.get('agent')}`);
+      }
     }
     
     return(
@@ -117,13 +127,12 @@ class Registration extends Component {
                     </React.Fragment>
                   ) : (
                     <React.Fragment>
-                      <RowDiv width="100%" margin="20% 0" padding="1rem" justify="center" alignItems="center">
-                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION1} fontSize="2.5rem" margin="1rem 1rem" />
-                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION2} fontSize="2.5rem" margin="1rem 1rem" />
-                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION3} fontSize="2.5rem" margin="1rem 1rem" />
-                        <Anchor href="#" decoration="underline" color="#2185D0" text={Constants.TERMS_PAGE} id="terms" target="_blank" />
-                        <label style={{width: "100%"}}><input className="uk-checkbox" type="checkbox" name="terms_agree" onChange={this.setTermsAgree } checked={ this.state.termsAgree === true } style={{marginRight: "2%"}} />{Constants.TERMS_AGREE}</label>
-
+                      <RowDiv width="100%" margin="2% 0" padding="1rem" direction="column" justify="center" alignItems="center">
+                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION1} fontSize="1.5rem" margin=".2rem 1rem" />
+                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION2} fontSize="1.5rem" margin=".2rem 1rem" />
+                        <Text color="#313131" str={Constants.SIGNUP_TEMP_REGISTRATION3} fontSize="1.5rem" margin=".2rem 1rem" />
+                        <Anchor href="#" decoration="underline" color="#2185D0" margin=".3rem auto" text={Constants.TERMS_PAGE} id="terms" target="_blank" />
+                        <label style={{width: "80%", marginLeft: "10%"}} ><input className="uk-checkbox" type="checkbox" name="terms_agree" onChange={this.setTermsAgree } checked={ this.state.termsAgree === true } style={{marginRight: "2%"}} />{Constants.TERMS_AGREE}</label>
                       </RowDiv>
                       <RowDiv width="100%" margin="0 0 5rem 0" padding="1rem" justify="space-around" alignItem="center" >
                         <Btn text={Constants.LOGIN} fontSize=".8rem" width="40%" backcolor="#EA497B" padding=".8rem 0" onClick={this.CheckUser} />

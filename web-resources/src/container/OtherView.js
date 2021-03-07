@@ -10,6 +10,8 @@ import Cover from '../components/UI/Cover'
 import UIkit from 'uikit';
 import UIkitIcons from 'uikit/dist/js/uikit-icons'
 UIkit.use(UIkitIcons)
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart, faHeartBroken, faHeartbeat } from '@fortawesome/free-solid-svg-icons'
 
 import styled from 'styled-components';
 import media from 'styled-media-query';
@@ -17,11 +19,11 @@ import Img from '../components/UI/img';
 import Btn from '../components/UI/btn';
 import Anchor from '../components/UI/a';
 import GoTipCard from '../components/Module/GoTipCard';
-import UserProfile from '../components/Module/UserProfile';
-import UserMessage from '../components/Module/UserMessage';
+import UserProfile from '../components/Module/UserProfile/other';
+import UserMessage from '../components/Module/UserMessage/other';
 import BLEList from '../components/Module/BleList';
-import ScheduleList from '../components/Module/ScheduleList';
-import RankingList from '../components/Module/RankingList';
+import ScheduleList from '../components/Module/ScheduleList/other';
+import RankingList from '../components/Module/RankingList/other';
 import LoadingCover from '../components/UI/loadingCover';
 
 
@@ -230,23 +232,31 @@ class Main extends Component {
         errorModal: false,
         errorMessage: "",
         menuShowHandler: false,
+        following: false
     };
   }
 
   componentDidMount() {
     const { match: { params } } = this.props;
+    const { mainState } = this.props;
+    this.setState({
+      sendID: localStorage.getItem('uid'),
+      recID: params.uid,
+      sendName: typeof mainState.user !== 'undefined' ? mainState.user.name.nickname : ''
+    })
     console.log(params.uid);
-    const { getOtherAccountInfo } = this.props;
+    const { getAccountInfo, getOtherAccountInfo } = this.props;
+    getAccountInfo(localStorage.getItem('uid'));
     getOtherAccountInfo(params.uid);
     loadingMessage = "データロード中";
   }
 
   gotip = () => {
-    const { mainState } = this.props;
+    const { mainState, gotipShow } = this.props;
     let gotip_show_state = mainState.show_state;
     if(gotip_show_state === undefined)
       gotip_show_state = false;
-    this.props.gotipShow(!gotip_show_state);
+    gotipShow(!gotip_show_state);
   };
   
 
@@ -261,29 +271,34 @@ class Main extends Component {
     executeLogout();
   }
 
+  changeFollow = () => {
+    this.setState({
+      following: !this.state.following
+    })
+  }
+
+  handleChip = (value, type) => {
+    const { mainState } = this.props;
+
+    const chipData = { 
+      chipAmount: value,
+      chipType: type,
+      sendID: this.state.sendID,
+      sendName: this.state.sendName,
+      recID: this.state.recID,
+      recName: typeof mainState.otherUser !== 'undefined' ? mainState.otherUser.name.nickname : ''
+    }
+    console.log("chip====>", chipData);
+    this.props.sendChip(chipData);
+  }
+
   render() {
-    const point_json = [100, 500, 1000, 1500, 2000, 2500, 3000, 5000];
     const { mainState } = this.props;
     const gotip_show_state = mainState.show_state;
-    let rowDiv = [];
     let GoTipCards = '';
     if(gotip_show_state === true){
-      const point_json_length = Math.ceil(point_json.length / 2);
-
-      for(let x = 0; x < point_json_length; x++ ) {
-        const left_Btn = (<Btn btnType="rounded" radius="2px" width="20%" color="#FFF" text={point_json[x * 2]} backcolor="#EA497B"/>);
-        const right_Btn = (point_json[(x * 2) + 1]) ? (<Btn btnType="rounded" width="20%" radius="2px" color="#FFF" text={point_json[(x * 2) + 1]} backcolor="#EA497B"/>) : '';
-        rowDiv.push(
-          <div className="uk-flex uk-flex-between" key={x}>
-            { left_Btn }
-            { right_Btn }
-          </div>
-        );
-      }
       GoTipCards = (
-        <GoTipCard>
-          { rowDiv }
-        </GoTipCard>
+        <GoTipCard />
       );
     }
     if(mainState.gettingState){
@@ -304,14 +319,18 @@ class Main extends Component {
                 <RightSection>
                   <div className="uk-flex uk-flex-row uk-flex-right" style={{position: "relative"}}>
                     <OutlineButton>シェア</OutlineButton>
-                    <button type="button" uk-toggle="target: #offcanvas-slide" style={buttonStyle}><span uk-icon="menu"></span></button>
+                    <button type="button" style={buttonStyle} onClick={this.changeFollow}><FontAwesomeIcon icon={ this.state.following ? faHeart : faHeartbeat } color="#30AA89"/></button>
                   </div>
-                  <GoTipDiv onClick={ this.gotip }>
-                    <div>
-                      <span style={{color: "#FFF", fontSize: "32px", fontWeight: "bolder"}}>Go Tip</span>
-                      <span style={{color: "#FFF", fontSize: "12px"}}>このユーザーに <br /> チップする！</span>
-                    </div>
-                  </GoTipDiv>
+                  {
+                    mainState.otherUser.auth_level === 2 ? (
+                      <GoTipDiv onClick={ this.gotip }>
+                        <div>
+                          <span style={{color: "#FFF", fontSize: "32px", fontWeight: "bolder"}}>Go Tip</span>
+                          <span style={{color: "#FFF", fontSize: "12px"}}>このユーザーに <br /> チップする！</span>
+                        </div>
+                      </GoTipDiv>
+                    ) : ''
+                  }
                   {/* <Img src="/static/img/GoTip.png" margin="10% 0" width="100%" height="auto" alt="GoTip" clicked={ this.gotip } /> */}
                 </RightSection>
               </UserSection>
@@ -339,8 +358,10 @@ class Main extends Component {
 
 const mapDispatchToProps = (dispatch) => ({
   gotipShow: bindActionCreators(main.gotipShow, dispatch),
+  getAccountInfo: bindActionCreators(main.getAccountInfo, dispatch),
   getOtherAccountInfo: bindActionCreators(main.getOtherAccountInfo, dispatch),
   executeLogout: bindActionCreators(main.executeLogout, dispatch),
+  sendChip: bindActionCreators(main.sendChip, dispatch)
 });
 
 

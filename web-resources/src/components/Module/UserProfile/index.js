@@ -6,7 +6,6 @@ import userEdit from '../../../store/actions/userEdit';
 
 import * as Constants from '../../../Constants';
 
-import ImageUploading from "react-images-uploading";
 import Modal from '../../UI/Modal/Modal';
 import InputColor from 'react-input-color';
 
@@ -89,6 +88,7 @@ class UserProfile extends Component {
       userState: 0,
       color: 'rgba(48, 170, 137, 1)',
       loadingMessage: null,
+      profileImage: '/static/img/user1.png'
     }
   }
 
@@ -203,10 +203,32 @@ class UserProfile extends Component {
 
   }
 
-  onChangeImage = (imageList) => {
-    this.setState({
-      avatar: imageList[0]
-    })
+  onChangeHandler = () => {
+    document.getElementById("profile_image").click();
+  }
+
+  onChangeImage = (e) => {
+    if (e.target && e.target.files && e.target.files[0] && e.target.files[0].type.match(/image/) && e.target.files[0].size < 10000000) {
+
+      let imageData = { file: e.target.files[0]};
+      const fileType = imageData.file.name.split('.').pop();
+
+      const freader = new FileReader()
+      
+      freader.onload = async loaded => {
+        if (freader.result) {
+          const imageBlob = await Constants.convertToBlobPng(freader.result, fileType)
+          imageData.dataURL = imageBlob;
+          document.getElementById("profileImgShow").src = freader.result;
+        }
+      }
+
+      freader.readAsDataURL(e.target.files[0]);
+
+      this.setState({
+        avatar: imageData,
+      })
+    }
   }
 
   render() {
@@ -217,7 +239,7 @@ class UserProfile extends Component {
       userAge: '',
       userState: 0,
       color: 'rgba(48, 170, 137, 1)',
-      profileImage: '/static/img/user1.png'
+      profileImage: this.state.profileImage
     };
 
     if(typeof allState.main.user !== 'undefined' && Object.keys(allState.main.user).length !== 0 && allState.main.user.constructor === Object){
@@ -264,25 +286,10 @@ class UserProfile extends Component {
                       </div>
                     ) : null
                   }
-                  <ImageUploading
-                    onChange={this.onChangeImage}
-                    maxFileSize={maxMbFileSize}
-                    acceptType={["jpg", "gif", "png"]}
-                    maxNumber="20"
-                    defaultValue={[{ dataURL: userData.profileImage }]}
-                  >
-                    {({ imageList }) => (
-                      <div>
-                        {
-                          imageList.map((image) => (
-                            <div className="uk-flex uk-flex-center" style={{width: "165px", height: "165px", zIndex: "2000", margin: 'auto', border: '1px solid #ddd', borderRadius: '5px' }} key={image.key} onClick={image.onUpdate}>
-                              <img src={image.dataURL} alt="avatar" />
-                            </div>
-                          ))
-                        }
-                      </div>
-                    )}
-                  </ImageUploading>
+                  <div className="uk-flex uk-flex-center" style={{width: "165px", height: "165px", zIndex: "2000", margin: 'auto', border: '1px solid #ddd', borderRadius: '5px' }}    >
+                    <img src={userData.profileImage} alt="avatar" id="profileImgShow" onClick={this.onChangeHandler} />
+                    <input type="file" style={{display: "none"}} id="profile_image" onChange={this.onChangeImage} />
+                  </div>
                 </PictureEditSection>
               ) : (
                 <PersonalInfoEditSection>

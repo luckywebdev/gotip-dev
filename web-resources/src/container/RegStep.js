@@ -163,7 +163,7 @@ class SignupStep extends Component {
                 );
             case "1":
                 return (
-                    <Signup_2 step="2" />
+                    <Signup_2 step="2" { ...this.props } />
                 );
             case "2":
                 return (

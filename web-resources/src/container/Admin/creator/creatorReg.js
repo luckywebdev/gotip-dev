@@ -19,6 +19,8 @@ import CreatorOnlineContent from '../../../components/Admin/Creator/creatorOnlin
 import CreatorDetailContent from '../../../components/Admin/Creator/creatorDetail';
 import CreatorSalesContent from '../../../components/Admin/Creator/creatorSaleSearch';
 import CreatorCompensationContent from '../../../components/Admin/Creator/creatorCompensation';
+import CreatorDailySaleContent from '../../../components/Admin/Creator/creatorDailySale';
+import CreatorPersonalSaleContent from '../../../components/Admin/Creator/creatorPersonalSale';
 
 const MainContainer = styled.div`
   max-width: 100%;
@@ -34,8 +36,20 @@ const MainContainer = styled.div`
 var loadingMessage = null;
 
 const Content = (props) => {
-  var pathArr = props.history.location.pathname.split('/');
-  let pathName = pathArr.slice(-1)[0];
+  let pathName = "";
+  const url = props.match.url;
+  const params = props.match.params;
+  let param = "";
+  if(Object.keys(params).length === 0 && params.constructor === Object){
+    const pathArr = url.split('/');
+    pathName = pathArr.slice(-1)[0];
+  }
+  else{
+    const pathArr = url.split('/');
+    pathName = pathArr.slice(-2)[0];
+    param = pathArr.slice(-2)[1];
+  }
+
   let components = null
   switch (pathName) {
     case 'register':
@@ -52,6 +66,12 @@ const Content = (props) => {
       break;
     case 'compensation':
       components = (<CreatorCompensationContent />);
+      break;
+    case 'dailySale':
+      components = (<CreatorDailySaleContent timestamp={param} />);
+      break;
+    case 'personalSale':
+      components = (<CreatorPersonalSaleContent params={param} />);
       break;
     default:
       break;
@@ -72,7 +92,7 @@ class AgentReg extends Component {
    };
   }
 
-  changeComponent = (creatorID) => {
+  changeComponent = (creatorID = null) => {
     if(!this.state.detailView){
       this.setState({
         detailView: true,
@@ -88,14 +108,13 @@ class AgentReg extends Component {
 
 
   render() {
-    console.log("pathArr0==>", this.props.history);
     return (
       <Aux>
         <LoadingCover  text={ loadingMessage !== null ? loadingMessage : null } />
 
         <Layout {...this.props} >
             <MainContainer>
-                <Content history={this.props.history} detailView={this.state.detailView} changeComponent={this.changeComponent} creatorID={this.state.creatorID} />
+                <Content history={this.props.history} match={this.props.match} detailView={this.state.detailView} changeComponent={this.changeComponent} creatorID={this.state.creatorID} />
             </MainContainer>
         </Layout>
       </Aux>

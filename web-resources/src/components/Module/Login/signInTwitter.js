@@ -25,7 +25,7 @@ class signInTwitter extends Component {
     }
     else{
       const { tryTwitterSignup } = this.props;
-      tryTwitterSignup();  
+      tryTwitterSignup(this.props.agentID);  
     }
   }
 

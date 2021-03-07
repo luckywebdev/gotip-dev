@@ -19,4 +19,7 @@ export default {
     tryCreatorSearch: (agentID) => {
       return { type: 'CREATOR_SEARCH', payload: agentID}
     },
+    updateOtherUser: (userData) => {
+      return { type: 'UPDATE_OTHER_USER', payload: userData}
+    },
   }

@@ -14,16 +14,26 @@ module.exports = async function (adminRef, dbRef, req, res) {
     case 'create' :
       createAccount(req.body)
       .then(async (result) => {
-        console.log("create_result", result);
-        var results = await postContactMail(req.body, result);
-        if(results){
+        var postRst = null;
+        if(typeof req.body.agent_id !== 'undefined' && req.body.agent_id !== null){
+          await insertAccountInfo(req.body, {uid: result.uid})
+          .then(async (res) => {
+            console.log("create_result", result);
+            postRst = await postContactMail(req.body, result);
+          })
+        }
+        else{
+          console.log("create_result", result);
+          postRst = await postContactMail(req.body, result);
+        }
+        if(postRst){
           res.send({
             result: true
           })
         }
         else{
           res.send({
-            result: results
+            result: postRst
           })
         }
       })
@@ -59,7 +69,8 @@ module.exports = async function (adminRef, dbRef, req, res) {
               action: result.action,
               customToken: customToken,
               email: result.email,
-              auth_level: result.auth_level
+              auth_level: result.auth_level,
+              agent_id: result.agent_id
             })  
           })
         }
@@ -135,26 +146,50 @@ module.exports = async function (adminRef, dbRef, req, res) {
       })
       break
     case 'createbysocial':
-
       const createTime = new Date();
-      postContactMail({email: req.body.email}, {uid: req.body.uid, createTime: createTime})
-      .then((results) => {
-        if(results){
-          res.send({
-            result: true
+      if(typeof req.body.agent_id !== 'undefined' && req.body.agent_id !== null){
+        await insertAccountInfo(req.body, {uid: req.body.uid})
+        .then(async (res) => {
+          await postContactMail({email: req.body.email, agent_id: req.body.agent_id}, {uid: req.body.uid, createTime: createTime})
+          .then((results) => {
+            if(results){
+              res.send({
+                result: true
+              })
+            }
+            else{
+              res.send({
+                result: results
+              })
+            }
           })
-        }
-        else{
-          res.send({
-            result: results
+          .catch(err => {
+            res.send({
+              result: err
+            })
           })
-        }
-      })
-      .catch(err => {
-        res.send({
-          result: err
         })
-      })
+      }
+      else{
+        postContactMail({email: req.body.email, agent_id: null}, {uid: req.body.uid, createTime: createTime})
+        .then((results) => {
+          if(results){
+            res.send({
+              result: true
+            })
+          }
+          else{
+            res.send({
+              result: results
+            })
+          }
+        })
+        .catch(err => {
+          res.send({
+            result: err
+          })
+        })
+      }
       break;
     case 'modify':
       admin.auth().verifyIdToken(req.body.idToken)
@@ -206,6 +241,7 @@ module.exports = async function (adminRef, dbRef, req, res) {
       var userId = req.params.userId
       var result
       if (userId) result = await getUserProfile(userId)
+      console.log("profile_result", result);
       res.send(result)
       break
     case 'setprofile':
@@ -221,6 +257,22 @@ module.exports = async function (adminRef, dbRef, req, res) {
         res.send(false)
       })
       break
+    case 'getCreator':
+      await getCreatorList()
+      .then(rst => {
+        res.send({
+          creatorList: rst.creatorList,
+          result: true
+        })
+      })
+      .catch((err) => {
+        res.send({
+          result: false,
+          creatorList: [],
+          error: err
+        })
+      })
+      break;
     case 'delete':
       deleteAccount(req.params.userId)
       .then((result) => {
@@ -282,13 +334,24 @@ function checkAccount(body) {
       .then(async (doc) => {
         if(doc.exists){
           const account = doc.data();
-          db.collection('users').doc(body.uid).update({loggedin: true}, {merge: true});
-          resolve({
-            state: true,
-            action: "login",
-            email: doc.email,
-            auth_level: account.auth_level
-          })
+          if(typeof account.name !== 'undefined' && account.name.nickname !== ''){
+            db.collection('users').doc(body.uid).update({loggedin: true}, {merge: true});
+            resolve({
+              state: true,
+              action: "login",
+              email: doc.email,
+              auth_level: account.auth_level
+            })
+          }
+          else{
+            resolve({
+              state: true,
+              action: "register",
+              email: account.email,
+              auth_level: account.auth_level,
+              agent_id: account.agent_id
+            })
+          }
         }
         else{
           const userData = await admin.auth().getUser(body.uid);
@@ -329,13 +392,39 @@ function insertAccountInfo (body, { uid }) {
     const regData = createRegData(body)
     const userData = await admin.auth().getUser(uid);
     regData.email = userData.email;
+    regData.fid = uid;
+    regData.uid = uid;
     regData.premium = false;
+    const currentTime = new Date();
     regData.created_at = new Date().getTime();
+    const dayStamp = 60 * 60 * 24 * 1000;
     const bankData = {
       bank_code: body.bank_code || null,
       branch_code: body.branch_code || null,
+      account_type: body.account_type || null,
       account_number: body.account_number || null,
       account_holder: body.account_holder || null
+    }
+    const pointData = {
+      data: {
+        normal: {
+          value: 1000,
+          expire_date: currentTime.setDate(currentTime.getDate() + 1)
+        },
+        subscription: {
+          value: 2000,
+          expire_date: currentTime.setMonth(currentTime.getMonth() + 1)
+        }
+      },
+      saleData: {
+        normal: {
+          value: 0,
+        },
+        subscription: {
+          value: 0,
+        }
+      },
+      log: []      
     }
     const userRef = db.collection('users').doc(uid)
     const pointRef = db.collection('points').doc(uid)
@@ -343,7 +432,7 @@ function insertAccountInfo (body, { uid }) {
     db.runTransaction(async (t) => {
       await t.get(userRef)
       t.set(userRef, regData, { merge: true })
-      t.set(pointRef, { data: [], log: [] }, { merge: true })
+      t.set(pointRef, pointData, { merge: true })
       t.set(bankRef, bankData, {merge: true})
     })
     .then(() => {
@@ -397,12 +486,12 @@ function createRegData (body) {
   return regData
 }
 
-function updateAccountInfo (body, uid) {
+function updateAccountInfo (body, fid) {
   return new Promise(async (resolve, reject) => {
     const authInfo = {}
     if (body.email && body.email.length > 0) authInfo.email = body.email;
     if (body.nickname && body.nickname.length > 0) authInfo.displayName = body.nickname;
-    const userRecord = await admin.auth().updateUser(uid, authInfo)
+    const userRecord = await admin.auth().updateUser(fid, authInfo)
       .catch(error => {
         console.error(error)
         reject(error)
@@ -410,10 +499,10 @@ function updateAccountInfo (body, uid) {
     
     const regData = createRegData(body)
     regData.updated_at = new Date().getTime();
-    const userData = await admin.auth().getUser(uid);
+    const userData = await admin.auth().getUser(fid);
     regData.email = userData.email;
     regData.premium = false
-    const userRef = db.collection('users').doc(uid)
+    const userRef = db.collection('users').doc(fid)
     db.runTransaction(async (t) => {
       await t.get(userRef)
       t.set(userRef, regData, { merge: true })
@@ -464,63 +553,74 @@ async function updateConfig (body, uid) {
   return result
 }
 
-async function getUserProfile (uid) {
-  const result = {}
-  const userRef = db.collection('users').doc(uid)
-  const configRef = db.collection('config').doc(uid)
-  const pointRef = db.collection('points').doc(uid)
-  const bankRef = db.collection('banks').doc(uid)
-  await configRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        const data = doc.data()
-        result.config = data;
-      } else {
-        result.config = {}
-      }
-    })
-    .catch(err => {
-      result.error = err;
-    })
-  await pointRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        const data = doc.data()
-        result.pointdata = data
-      } else {
-        result.pointdata = {}
-      }
-  })
-  .catch(err => {
-    result.error = err;
-  })
-
+function getUserProfile (uid) {
+  return new Promise(async (resolve, reject) => {
+    const result = {}
+    var fid = uid;
+    const userRefs = db.collection('users').where('uid', '==', uid);
+    const userDatas = await userRefs.get();
+    if(!userDatas.empty){
+      console.log("userDatas", userDatas);
+      var k = 0;
+      userDatas.forEach(async (item) => {
+        userData = item.data();
+        fid = userData.fid;
+        console.log("fid", fid, k, userDatas._size);
+        result.account = userData;
+        result.isExists = item.exists;
+        const configRef = db.collection('config').doc(fid)
+        const pointRef = db.collection('points').doc(fid)
+        const bankRef = db.collection('banks').doc(fid)
+        await configRef.get()
+          .then((doc) => {
+            if (doc.exists) {
+              const data = doc.data()
+              result.config = data;
+            } else {
+              result.config = {}
+            }
+          })
+          .catch(err => {
+            result.error = err;
+          })
+        await pointRef.get()
+          .then((doc) => {
+            if (doc.exists) {
+              const data = doc.data()
+              result.pointdata = data
+            } else {
+              result.pointdata = {}
+            }
+        })
+        .catch(err => {
+          result.error = err;
+        })
+      
+        
+        await bankRef.get()
+        .then((doc) => {
+          if (doc.exists) {
+            const data = doc.data()
+            result.bank = data
+          }
+          result.isExists = doc.exists
+        })
+        .catch(err => {
+          result.error = err;
+        })
+        if(k === userDatas._size - 1){
+          console.log("fid", fid, k, result);
   
-  await userRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        const data = doc.data()
-        result.account = data
-      }
-      result.isExists = doc.exists
-    })
-    .catch(err => {
-      result.error = err;
-    })
-    await bankRef.get()
-    .then((doc) => {
-      if (doc.exists) {
-        const data = doc.data()
-        result.bank = data
-      }
-      result.isExists = doc.exists
-    })
-    .catch(err => {
-      result.error = err;
-    })
-
-  
-  return result
+          resolve(result);
+        }
+        k++;
+      })
+    }
+    else{
+      resolve(result);
+    }
+  })
+ 
 }
 
 function setUserProfile (userData, uid) {
@@ -558,10 +658,49 @@ function setUserProfile (userData, uid) {
   })
 }
 
-async function postContactMail ({ email }, {uid, createTime}) {
+function getCreatorList() {
+  return new Promise(async (resolve, reject) => {
+    var creatorList = [];
+    var userRef = db.collection('users');
+    userRef = userRef.where('auth_level', '==', 2);
+    const snapshot = await userRef.get();
+    console.log("creatorsnapshot", snapshot)
+    const snapshotSize = snapshot._size;
+    if(snapshot.empty){
+      resolve({
+        creatorList: [],
+        result: true
+      })
+    }
+    else{
+      var k = 0;
+      snapshot.forEach((item) => {
+        var creatorData = item.data();
+        creatorData.userID = item.id;
+        creatorList.push(creatorData);
+        if(k === snapshotSize - 1){
+          resolve({
+            creatorList: creatorList,
+            result: true
+          })
+        }
+        k++;
+      })
+    }
+  })
+}
+
+async function postContactMail ({ email, agent_id }, {uid, createTime}) {
   // return new Promise(async (resolve, reject) => {
     const d = new Date(createTime);
     const createTimeStamp = d.getTime() / 1000;
+    let url = '';
+    if(typeof agent_id !== 'undefined' && agent_id !== null){
+      url = `https://gotip-dev.firebaseapp.com/registration?code=${uid}&agent=${agent_id}`;
+    }
+    else{
+      url = `https://gotip-dev.firebaseapp.com/registration?code=${uid}&time=${createTimeStamp}`;
+    }
     const mailBody =
       `【GoTip 会員登録にお申し込みいただき、誠にありがとうございます。】
         下記ページより本登録のお手続きをお願いいたします。
@@ -572,7 +711,7 @@ async function postContactMail ({ email }, {uid, createTime}) {
         24時間以内に以下URLより登録を完了させてください。
         ※24時間を過ぎた場合には無効になり、ますのでご注意ください。
         その場合はお手数ですがご登録を最初からやり直して頂きますようお願い致します。
-        https://gotip-dev.firebaseapp.com/registration?code=${uid}&time=${createTimeStamp}
+        ${url}
     
         お問い合わせ
     
@@ -611,6 +750,7 @@ async function postContactMail ({ email }, {uid, createTime}) {
     return result;
   // })
 }
+
 
 function deleteAccount (uid) {
   return new Promise(async (resolve, reject) => {

@@ -137,7 +137,7 @@ export default (props) => {
                         </thead>
                         <tbody>
                             <tr>
-                                <td></td>
+                                <td><a href="#" onClick={() => history.push(`/admin/creator/dailySale/${new Date().getTime()}`)} >{Constants.convert_fulldate(new Date().getTime())}</a></td>
                                 <td>40,000pt</td>
                                 <td>20,000</td>
                                 <td>20,000</td>
@@ -148,7 +148,7 @@ export default (props) => {
                                 <td></td>
                             </tr>
                             <tr>
-                                <td></td>
+                                <td><a href="#" onClick={() => history.push(`/admin/creator/dailySale/${new Date().getTime()}`)} >{Constants.convert_fulldate(new Date().getTime())}</a></td>
                                 <td>40,000pt</td>
                                 <td>20,000</td>
                                 <td>40,000pt</td>
@@ -159,7 +159,7 @@ export default (props) => {
                                 <td></td>
                             </tr>
                             <tr>
-                                <td></td>
+                                <td><a href="#" onClick={() => history.push(`/admin/creator/dailySale/${new Date().getTime()}`)} >{Constants.convert_fulldate(new Date().getTime())}</a></td>
                                 <td>60,000pt</td>
                                 <td>30,000</td>
                                 <td>40,000pt</td>

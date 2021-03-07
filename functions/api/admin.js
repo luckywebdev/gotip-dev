@@ -161,6 +161,27 @@ module.exports = async function (adminRef, dbRef, req, res) {
             uploadedUrl: imageUrl
         })
         break;
+    case 'updateUser':
+        console.log("updateUSEr===", req.body);
+        await admin.auth().verifyIdToken(req.body.idToken)
+        .then(async (decoded) => {
+            await updateUser(req.body)
+            .then((rst) => {
+                res.send(rst);
+            })
+            .catch(err => {
+                res.send({
+                    result: false,
+                    error: err
+                })
+            })
+        })
+        .catch(err => {
+            res.send({
+                result: false,
+                error: err
+            })
+        })
     default:
         res.end()
   }
@@ -278,6 +299,9 @@ function userSearch(body) {
         }
         if(body.agentName !== ""){
             userRef = userRef.where('agent_name', '==', body.agentName);
+        }
+        if(body.userID !== "") {
+            userRef = userRef.where('uid', '==', body.uid);
         }
         if(body.creatorChk === true){
             userRef = userRef.where('auth_level', '==', 2);
@@ -534,6 +558,83 @@ function getChildAgent (uid, type) {
         }) 
       })
     })
+}
+
+function updateUser (body) {
+    return new Promise (async (resolve, reject) => {
+        const regData = createRegData(body)
+        regData.updated_at = new Date().getTime();
+        const userData = await admin.auth().getUser(body.fid);
+        regData.email = userData.email;
+        regData.premium = false
+        const bankData = {
+            bank_code: body.bank_code || null,
+            branch_code: body.branch_code || null,
+            account_type: body.account_type || null,
+            account_number: body.account_number || null,
+            account_holder: body.account_holder || null
+        }
+        const userRef = db.collection('users').doc(body.fid);
+        const bankRef = db.collection('banks').doc(body.fid);
+        db.runTransaction(async (t) => {
+            await t.get(userRef)
+            await t.get(bankRef);
+            t.update(userRef, regData)
+            t.update(bankRef, bankData);
+        })
+        .then(() => {
+            resolve({
+                result: true
+            })
+        }).catch((err) => {
+            reject(err)
+        })
+    })
+}
+  
+function createRegData (body) {
+    const regData = {
+      sex: body.sex || null,
+      uid: body.uid || null,
+      email: body.email || null,
+      theme_color: body.themeColor || "rgba(48, 170, 137, 1)",
+      profile: body.profile || "",
+      tel: `+81${ body.tel }` || null,
+      // tel: `+81${ String(body.tel).replace(/^0/, '') }` || null,
+      agent_id: body.agent_id || null,
+      userState: body.userState || 0,
+      auth_level: body.auth_level || 1
+    }
+    if (body.nickname) regData.name = {
+      value: body.name || null,
+      ruby: body.ruby || null,
+      nickname: body.nickname || null
+    }
+    if (typeof body.birthdate !== 'undefined' && body.birthdate.year && body.birthdate.month && body.birthdate.day) regData.birthdate = {
+      year: body.birthdate.year,
+      month: body.birthdate.month,
+      day: body.birthdate.day
+    }
+    else{
+      regData.birthdate = {
+        year: "",
+        month: "",
+        day: ""
+      };
+    }
+    if(body.delegate) regData.delegate = {
+      name: body.delegate.name || null,
+      ID_photo: body.delegate.ID_photo || null
+    }
+    if(body.address && body.address.prefecture) regData.address = {
+      value: body.address.prefecture || null,
+      postal_code: bod.addressy.post_code || null,
+      county: body.address.county || null,
+      town: body.address.town || null,
+      fandi: body.address.fandi || null,
+      building_room: body.address.building_room || null
+    }
+    return regData
   }
   
   

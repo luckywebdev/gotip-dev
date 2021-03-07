@@ -100,7 +100,8 @@ class SignUp extends Component {
       errorMessage: '',
       showPassword: false,
       showRePassword: false,
-      signupResult: false
+      signupResult: false,
+      loadingMessage: false
     }
   }
 
@@ -118,7 +119,16 @@ class SignUp extends Component {
   SignUpSubmit = () => {
     if(this.validateForm()){
       const { trySignUp } = this.props;
-      trySignUp(this.state.email, this.state.password);
+      const agentID = this.props.agentID;
+      if(agentID !== null && agentID !== ""){
+        trySignUp(this.state.email, this.state.password, agentID);
+      }
+      else{
+        trySignUp(this.state.email, this.state.password);
+      }
+      this.setState({
+        loadingMessage: true
+      })
     }
   }
 
@@ -185,16 +195,25 @@ class SignUp extends Component {
       errors: errors
     });
     return formIsValid;
-
-
   }
+
+  // handleClose = () => {
+  //   this.props.history.push('/land')
+  // }
 
   render() {
     return (
       <SignUpForm>
+          {
+            (this.state.loadingMessage !== false) ? (
+              <div style={{position: "absolute", top: "50%", left: "50%", transform: 'translate(-50%, -50%)', display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}} >
+                <div uk-spinner={ `ratio: 2` } style={{ color: '#FFF', fontWeight: "600" }} /><span style={{ color: '#FFF', fontWeight: "600" }}>処理中</span>
+              </div>
+            ) : null
+          }
           <form>
             <fieldset className="uk-fieldset">
-                <CloseBtn onClick={() => this.props.history.push('./land')}>
+                <CloseBtn onClick={() => this.props.history.push('/land')}>
                     <span uk-icon="icon: close"></span>
                 </CloseBtn>
                 <StyledLegend className="uk-legend uk-text-center uk-text-success uk-text-bold">{ Constants.SIGNUP_TITLE}</StyledLegend>
@@ -252,9 +271,9 @@ class SignUp extends Component {
                       </RowDiv>
         
                       <RowDiv className="uk-margin uk-align-center uk-text-center uk-flex uk-flex-center uk-flex-middle">
-                          <SignInFaceBook type="signup" />
-                          <SignInTwitter type="signup" />
-                          <SignInGoogle type="signup" />
+                          <SignInFaceBook type="signup" agentID={this.props.agentID} />
+                          <SignInTwitter type="signup" agentID={this.props.agentID} />
+                          <SignInGoogle type="signup" agentID={this.props.agentID} />
                       </RowDiv>
                       <RowDiv className="uk-margin uk-align-center uk-text-center uk-flex uk-flex-center uk-flex-middle" style={{padding: "2%"}}>
                       </RowDiv>

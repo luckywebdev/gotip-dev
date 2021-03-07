@@ -1,18 +1,18 @@
 export default {
-  trySignUp: (email, password) => {
-    return { type: 'TRY_SIGNUP', payload: { email, password }}
+  trySignUp: (email, password, agent_id = null) => {
+    return { type: 'TRY_SIGNUP', payload: { email, password, agent_id }}
   },
   checkUser: (uid, createTime) => {
     return { type: 'CHECK_USER', payload: { uid: uid, createTime: createTime }}
   },
-  tryGoogleSignup: () => {
-    return { type: 'TRY_GOOGLE_SIGNUP', payload: { } }
+  tryGoogleSignup: (agent_id) => {
+    return { type: 'TRY_GOOGLE_SIGNUP', payload: { agent_id} }
   },
-  tryFacebookSignup: () => {
-    return { type: 'TRY_FACEBOOK_SIGNUP', payload: { } }
+  tryFacebookSignup: (agent_id) => {
+    return { type: 'TRY_FACEBOOK_SIGNUP', payload: { agent_id } }
   },
-  tryTwitterSignup: () => {
-    return { type: 'TRY_TWITTER_SIGNUP', payload: { } }
+  tryTwitterSignup: (agent_id) => {
+    return { type: 'TRY_TWITTER_SIGNUP', payload: { agent_id } }
   },
   executeRegister: (state) => {
     return { type: 'REGISTER_USER', payload: { data: state ? state : {} }}

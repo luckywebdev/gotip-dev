@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as Constants from '../../Constants';
 import main from '../../store/actions/main';
-import { useHistory } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 
 import UIkit from 'uikit'
 import UIkitIcons from 'uikit/dist/js/uikit-icons'
@@ -47,6 +47,7 @@ export default (props) => {
     let approvedTemp = 0;
     let holdTemp = 0;
     let history = useHistory();
+    let params = useParams();
     dispatch = useDispatch()
     const mainState = useSelector( state => state.main );
     const [agentLevel, setAgentLevel] = useState('0');
@@ -120,6 +121,19 @@ export default (props) => {
                 }
             }
         })
+        if(title === ""){
+            if(Object.keys(params).length > 0 && params.constructor === Object){
+                const pathArr = history.location.pathname.split('/');
+                const compName = pathArr.slice(-2)[0];
+                if(compName === "dailySale"){
+                    title = Constants.DAILYSALE + "   " + Constants.convert_fullStringDate(Number(params.timestamp));
+                }
+                if(compName === "personalSale"){
+                    title = Constants.CREATOR_MONTH_SALE;
+                }
+
+            }
+        }
         return title;
     }
 

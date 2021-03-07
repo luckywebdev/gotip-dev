@@ -35,7 +35,8 @@ import BLEList from '../components/Module/BleList';
 import ScheduleList from '../components/Module/ScheduleList';
 import RankingList from '../components/Module/RankingList';
 import LoadingCover from '../components/UI/loadingCover';
-
+import PointDetail from '../components/Module/Point';
+import ModalComponent from '../components/ModalComponent';
 
 const MainContainer = styled.div`
   width: 60%;
@@ -269,7 +270,8 @@ class Main extends Component {
         errorModal: false,
         errorMessage: "",
         menuShowHandler: false,
-        sharingShowHandler: false
+        sharingShowHandler: false,
+        detailModal: false
     };
   }
 
@@ -307,9 +309,20 @@ class Main extends Component {
     })
   }
 
+  pointDetailModal = () => {
+    this.setState({
+      detailModal: !this.state.detailModal
+    })
+  }
+
+
   render() {
     const point_json = [100, 500, 1000, 1500, 2000, 2500, 3000, 5000];
     const { mainState } = this.props;
+    let currentPoint = 0;
+    if(typeof mainState.points !== 'undefined'){
+      currentPoint = mainState.points.data.normal.value + mainState.points.data.subscription.value;
+    }
     const gotip_show_state = mainState.show_state;
     let rowDiv = [];
     let GoTipCards = '';
@@ -369,12 +382,15 @@ class Main extends Component {
                     </SharingModal>
                     <button type="button" uk-toggle="target: #offcanvas-slide" style={buttonStyle}><span uk-icon="menu"></span></button>
                   </div>
-                  <GoTipDiv onClick={ this.gotip }>
+                  <GoTipDiv>
                     <div>
-                      <span style={{color: "#FFF", fontSize: "32px", fontWeight: "bolder"}}>Go Tip</span>
-                      <span style={{color: "#FFF", fontSize: "12px"}}>このユーザーに <br /> チップする！</span>
+                      <span style={{color: "#FFF", fontSize: "12px"}}>現在の保有ポイント</span>
+                      <span style={{color: "#FFF", fontSize: "22px", fontWeight: "bolder"}}>{currentPoint} <small>pt</small></span>
+                      <Btn backcolor="#FFF" color="#EA497B" fontSize="12px" margin=".3rem" padding=".3rem .8rem" text={Constants.CHECK} onClick={this.pointDetailModal} />
                     </div>
                   </GoTipDiv>
+                  <PointDetail detailModal={this.state.detailModal} pointDetailModal={this.pointDetailModal} />
+
                   {/* <Img src="/static/img/GoTip.png" margin="10% 0" width="100%" height="auto" alt="GoTip" clicked={ this.gotip } /> */}
                 </RightSection>
               </UserSection>
@@ -383,17 +399,26 @@ class Main extends Component {
                   <BLEList />
                 </InfoLeftSubSection>
                 <InfoRightSubSection>
-                  <ScheduleList />
+                  {
+                    typeof mainState.user !== 'undefined' && mainState.user.auth_level === 2 ? (
+                      <ScheduleList />
+                    ) : ''
+                  }
                 </InfoRightSubSection>
               </InfoSection>
               <InfoSection>
-                <RankingList />
+                {
+                  typeof mainState.user !== 'undefined' && mainState.user.auth_level === 2 ? (
+                    <RankingList />
+                  ) : ''
+                }
               </InfoSection>
 
             </MainContainer>
             
             { GoTipCards }
             
+            <ModalComponent />
         </Layout>
       </Aux>
     );

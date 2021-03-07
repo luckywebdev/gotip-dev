@@ -91,7 +91,7 @@ export default (props) => {
   const gender = {'male': '男', 'female': '女', 'other': ''}
 
   useEffect(() => {
-    if(typeof adminState.userList !== 'undefined'){
+    if(typeof adminState.userList !== 'undefined' && typeof adminState.userList.name !== 'undefined'){
       const userListTemp = adminState.userList.map((item, index) => {
         item.checked = false;
         return item;

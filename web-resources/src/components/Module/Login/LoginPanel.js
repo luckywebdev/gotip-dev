@@ -101,7 +101,8 @@ class LoginPanel extends Component {
       loginSubmitFlag: false,
       errors: {},
       errorModal: false,
-      errorMessage: ''
+      errorMessage: '',
+      loadingMessage: false
     }
     this.history = createBrowserHistory();
   }
@@ -122,6 +123,9 @@ class LoginPanel extends Component {
     if(this.validateForm()){
       const { tryLogin } = this.props;
       tryLogin(this.state.email, this.state.password, this.state.isKeepLogin);
+      this.setState({
+        loadingMessage: true
+      })
     }
   }
 
@@ -170,7 +174,13 @@ class LoginPanel extends Component {
   render() {
     return (
       <LoginForm>
-
+          {
+            (this.state.loadingMessage !== false) ? (
+              <div style={{position: "absolute", top: "50%", left: "50%", transform: 'translate(-50%, -50%)', display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center"}} >
+                <div uk-spinner={ `ratio: 2` } style={{ color: '#FFF', fontWeight: "600" }} /><span style={{ color: '#FFF', fontWeight: "600" }}>処理中</span>
+              </div>
+            ) : null
+          }
           <form>
             <fieldset className="uk-fieldset">
   

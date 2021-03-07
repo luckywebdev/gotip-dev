@@ -30,6 +30,7 @@ function* handleUserSignUp () {
 function signup(firebase, userData) {
   return new Promise( async (resolve) => {
     try {
+      console.log("userData===>", userData);
       const response = await axios.post('/api/user/create', userData)
         .catch((err) => {
           console.error(err)
@@ -57,7 +58,7 @@ function* handleGoogleSignup () {
   while (true) {
     const action = yield take('TRY_GOOGLE_SIGNUP')
     yield put({ type: 'SET_LOADING_TEXT', payload: '登録処理中' });
-    const { payload, error } = yield call(googleSignup, firebase)
+    const { payload, error } = yield call(googleSignup, firebase, action.payload)
     yield put({ type: 'SET_LOADING_TEXT', payload: null })
     if (!error) {
       if (payload && payload.result === true) {
@@ -71,13 +72,14 @@ function* handleGoogleSignup () {
   }
 }
 
-function googleSignup(firebase) {
+function googleSignup(firebase, param) {
   const provider = new firebase.auth.GoogleAuthProvider();
   return new Promise((resolve) => {
+    console.log("google_signup===>", param);
     try {
       firebase.auth().signInWithPopup(provider).
       then(async (response) => {
-        const api_result = await axios.post('/api/user/createbysocial', {uid: response.user.uid, email: response.user.email})
+        const api_result = await axios.post('/api/user/createbysocial', {uid: response.user.uid, email: response.user.email, agent_id: param.agent_id})
           .catch((err) => {
             console.error(err)
           })
@@ -123,7 +125,7 @@ function* handleFacebookSignup () {
   while (true) {
     const action = yield take('TRY_FACEBOOK_SIGNUP')
     yield put({ type: 'SET_LOADING_TEXT', payload: '登録処理中' });
-    const { payload, error } = yield call(facebookSignup, firebase)
+    const { payload, error } = yield call(facebookSignup, firebase, action.payload)
     yield put({ type: 'SET_LOADING_TEXT', payload: null })
     if (!error) {
       if (payload && payload.result === true) {
@@ -137,13 +139,13 @@ function* handleFacebookSignup () {
   }
 }
 
-function facebookSignup(firebase) {
+function facebookSignup(firebase, param) {
   const provider = new firebase.auth.FacebookAuthProvider();
   return new Promise((resolve) => {
     try {
       firebase.auth().signInWithPopup(provider).
       then(async (response) => {
-        const api_result = await axios.post('/api/user/createbysocial', {uid: response.user.uid, email: response.user.email})
+        const api_result = await axios.post('/api/user/createbysocial', {uid: response.user.uid, email: response.user.email, agent_id: param.agent_id})
           .catch((err) => {
             console.error(err)
           })
@@ -182,7 +184,7 @@ function* handleTwitterSignup () {
   while (true) {
     const action = yield take('TRY_TWITTER_SIGNUP')
     yield put({ type: 'SET_LOADING_TEXT', payload: '登録処理中' });
-    const { payload, error } = yield call(twitterSignup, firebase)
+    const { payload, error } = yield call(twitterSignup, firebase, action.payload)
     yield put({ type: 'SET_LOADING_TEXT', payload: null })
     if (!error) {
       if (payload && payload.result === true) {
@@ -196,13 +198,13 @@ function* handleTwitterSignup () {
   }
 }
 
-function twitterSignup(firebase) {
+function twitterSignup(firebase, param) {
   const provider = new firebase.auth.GoogleAuthProvider();
   return new Promise((resolve) => {
     try {
       firebase.auth().signInWithPopup(provider).
       then(async (response) => {
-        const api_result = await axios.post('/api/user/createbysocial', {uid: response.user.uid, email: response.user.email})
+        const api_result = await axios.post('/api/user/createbysocial', {uid: response.user.uid, email: response.user.email, agent_id: param.agent_id})
           .catch((err) => {
             console.error(err)
           })
@@ -264,7 +266,7 @@ function* handleCheckUser () {
           window.location.href = "./signup";
         }
         else{
-          window.location.href = "./land";
+          // window.location.href = "./land";
         }
       }
     }

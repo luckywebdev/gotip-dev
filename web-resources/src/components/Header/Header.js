@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as Constants from '../../Constants';
 import main from '../../store/actions/main';
@@ -9,6 +9,7 @@ UIkit.use(UIkitIcons)
 import styled from 'styled-components';
 import Btn from '../UI/btn';
 import Img from '../UI/img';
+import { useHistory } from 'react-router';
 
 const StyleHeader = styled.header`
   background-color: ${ props => `${ props.backColor ? props.backColor : '#30AA89' }` };
@@ -78,14 +79,53 @@ const CategoryList = styled.div`
   flex-flow: wrap;
 `;
 
+const CreatorList = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 90%;
+  height: 100px;
+  overflow-y: auto;
+  margin: auto;
+`;
+
 let dispatch;
+let history;
 export default (props) => {
-  dispatch = useDispatch()
+  dispatch = useDispatch();
+  history = useHistory();
   const mainState = useSelector( state => state.main );
   const theme_color = typeof mainState.user !== 'undefined' && typeof mainState.user.theme_color !== 'undefined' ? mainState.user.theme_color : "#30AA89";
   const headerHide = props.headerHide ? true : false;
   const [categoryList, setCategoryList] = useState(false);
   const [selectCategory, setSelectCategory] = useState(0);
+  const [creatorList, setCreatorList] = useState([]);
+  const [creatorListSource, setCreatorListSource] = useState([]);
+  const [searchCreator, setSearchCreator] = useState("");
+
+  useEffect(() => {
+    dispatch(main.getCreatorList());
+  }, []);
+
+  useEffect(() => {
+    if(typeof mainState.creatorList !== 'undefined' && mainState.creatorList.length > 0){
+      setCreatorListSource(mainState.creatorList);
+      console.log(mainState.creatorList)
+    }
+  }, [mainState.creatorList]);
+
+  const handleCreatorSearch = (e) => {
+    setSearchCreator(e.target.value);
+    if(e.target.value !== ''){
+      let creatorListData = [];
+      // dispatch(agent.trySearch({uid: agentID, name: name, address: address, bankName: bankName, chargePersonName: chargePersonName}));
+      const creatorListTemp = creatorListSource.filter(item => item.name.nickname.includes(e.target.value) || item.uid.localeCompare(e.target.value));
+      console.log("creatorlisttemp", creatorListTemp);
+      creatorListData = [...creatorListData, ...creatorListTemp];
+      setCreatorList(creatorListData);
+    }
+  }
 
   return (
     <StyleHeader uk-navbar backColor={(typeof mainState.user !== 'undefined' && mainState.user.theme_color !== '') ? mainState.user.theme_color : '#30AA89'}>
@@ -96,7 +136,7 @@ export default (props) => {
               !headerHide ? (
                 <SearchDiv className="uk-inline">
                   <a className="uk-form-icon" href="#" uk-icon="icon: search" onClick={() => setCategoryList(false)}></a>
-                  <SearchInput className="uk-input" type="text" placeholder="ユーザーを検索" onFocus={() => setCategoryList(true)} onChange={() => setCategoryList(true)} />
+                  <SearchInput className="uk-input" type="text" placeholder="ユーザーを検索" value={searchCreator} onFocus={() => setCategoryList(true)} onChange={(e) => handleCreatorSearch(e)} />
                 </SearchDiv>
               ) : ''
             }
@@ -122,6 +162,15 @@ export default (props) => {
                     } )
                   }
                 </CategoryList>
+                <CreatorList>
+                  { creatorList.length > 0 && creatorList.map((item, index) => {
+                    console.log("creatoritem", item)
+                    return (
+                      <a key={index} href="#" onClick={() => history.push(`/main/${item.uid}`)} >{item.name.nickname}</a>
+                      )
+                  })}
+                 
+                </CreatorList>
               </SearchResult>
             ) : ''
           }

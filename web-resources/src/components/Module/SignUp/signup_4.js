@@ -6,6 +6,8 @@ import UIkitIcons from 'uikit/dist/js/uikit-icons';
 UIkit.use(UIkitIcons)
 
 import styled from 'styled-components';
+import InputMask from 'react-input-mask';
+
 import registration from '../../../store/actions/registration';
 import * as Constants from '../../../Constants';
 import RowDiv from '../../UI/div';
@@ -30,6 +32,22 @@ const StyledLegend = styled.h3`
 const LastRowDiv = styled(RowDiv)`
   margin-top: 60px !important;
 `
+const InputMaskStyle = {
+  backgroundColor: "#FFF",
+  border: "1px solid #A3B5C1",
+  padding: "0rem 1rem",
+  height: '50px',
+  margin: '0px',
+  width: '100%',
+  boxShadow: 'none',
+  outline: 'none',
+  borderRadius: '5px',
+  boxSizing: 'border-box'
+}
+
+const RightMarginLabel = styled.label`
+  margin-right: 1em;
+`
 
 const ErrorMsg = styled.div`
   color: red;
@@ -43,6 +61,7 @@ class SignUpPanel_4 extends Component {
       bank_code: '',
       branch_code: '',
       account_number: '',
+      account_type: 'ordinary',
       account_holder: '',
       errors: ''
     }
@@ -76,6 +95,10 @@ class SignUpPanel_4 extends Component {
         errors.account_number = "*口座番号を入力してください。";
         isValid = false;
       }
+      if (!this.state.account_type) {
+        errors.account_type = "*口座種別を選択してください。";
+        isValid = false;
+      }
       if (!this.state.account_holder) {
         errors.account_holder = "*口座名義人を入力してください。";
         isValid = false;
@@ -107,22 +130,34 @@ class SignUpPanel_4 extends Component {
             <RowDiv className="uk-margin" justify="center" direction="column" alignItems="flex-start" width="100%" padding="0 1rem" >
                 <label className="uk-form-label" htmlFor="form-reg-bank_code">{ Constants.SIGNUP_4_BANK_CODE }</label>
                 <div className="uk-form-controls" style={{width: '30%', marginTop: '.3rem', marginBottom: '.5rem'}}>
-                    <Input type="text" elementType="input" className="uk-input uk-width" width="100%" id="form-reg-bank_code" backcolor="#FFF" border="1px solid #A3B5C1" padding="0rem 1rem" name="bank_code" placeholder="0000000000" value={this.state.bank_code} changed={ this.handleInput } />
+                    <InputMask mask="9999" maskChar=""  name="bank_code" style={InputMaskStyle} placeholder="0000" value={this.state.bank_code} onChange={ this.handleInput } />
+                    {/* <Input type="text" elementType="input" className="uk-input uk-width" width="100%" id="form-reg-bank_code" backcolor="#FFF" border="1px solid #A3B5C1" padding="0rem 1rem" name="bank_code" placeholder="0000000000" value={this.state.bank_code} changed={ this.handleInput } /> */}
                     <ErrorMsg>{this.state.errors.bank_code}</ErrorMsg>
                 </div>
             </RowDiv>
             <RowDiv className="uk-margin" justify="center" direction="column" alignItems="flex-start" width="100%" padding="0 1rem" >
                 <label className="uk-form-label" htmlFor="form-reg-branch_code">{ Constants.SIGNUP_4_BRANCH_CODE }</label>
                 <div className="uk-form-controls" style={{width: '30%', marginTop: '.3rem', marginBottom: '.5rem'}}>
-                    <Input type="text" elementType="input" className="uk-input uk-width" width="100%" id="form-reg-branch_code" backcolor="#FFF" border="1px solid #A3B5C1" padding="0rem 1rem" name="branch_code" placeholder="000" value={this.state.branch_code} changed={ this.handleInput } />
+                    <InputMask mask="999" maskChar=""  name="branch_code" style={InputMaskStyle} placeholder="000" value={this.state.branch_code} onChange={ this.handleInput }  />
+                    {/* <Input type="text" elementType="input" className="uk-input uk-width" width="100%" id="form-reg-branch_code" backcolor="#FFF" border="1px solid #A3B5C1" padding="0rem 1rem" name="branch_code" placeholder="000" value={this.state.branch_code} changed={ this.handleInput } /> */}
                     <ErrorMsg>{this.state.errors.branch_code}</ErrorMsg>
                </div>
             </RowDiv>
             <RowDiv className="uk-margin" justify="center" direction="column" alignItems="flex-start" width="100%" padding="0 1rem" >
                 <label className="uk-form-label" htmlFor="form-reg-account_number">{ Constants.SIGNUP_4_ACCOUNT_NUMBER }</label>
                 <div className="uk-form-controls" style={{width: '60%', marginTop: '.3rem', marginBottom: '.5rem'}}>
-                    <Input type="text" elementType="input" className="uk-input uk-width" width="100%" id="form-reg-account_number" backcolor="#FFF" border="1px solid #A3B5C1" padding="0rem 1rem" name="account_number" placeholder="000" value={this.state.account_number} changed={ this.handleInput } />
+                    {/* <Input type="text" elementType="input" className="uk-input uk-width" width="100%" id="form-reg-account_number" backcolor="#FFF" border="1px solid #A3B5C1" padding="0rem 1rem" name="account_number" placeholder="000" value={this.state.account_number} changed={ this.handleInput } /> */}
+                    <InputMask mask="9999999" maskChar=""  name="account_number" style={InputMaskStyle} placeholder="0000000" value={this.state.account_number} onChange={ this.handleInput } />
+
                     <ErrorMsg>{this.state.errors.account_number}</ErrorMsg>
+                </div>
+            </RowDiv>
+            <RowDiv className="uk-margin" justify="center" direction="column" alignItems="flex-start" width="100%" padding="0 1rem" >
+                <label className="uk-form-label" htmlFor="form-reg-account_number">{ Constants.SIGNUP_4_ACCOUNT_NUMBER }</label>
+                <div className="uk-form-controls" style={{width: '60%', marginTop: '.3rem', marginBottom: '.5rem'}}>
+                  <RightMarginLabel><input className="uk-radio" type="radio" name="account_type" value="ordinary" onChange={ this.handleInput } checked={ this.state.account_type === 'ordinary' } />{Constants.ORDINARY}</RightMarginLabel>
+                  <RightMarginLabel><input className="uk-radio" type="radio" name="account_type" value="current" onChange={ this.handleInput }  checked={ this.state.account_type === 'current' } />{Constants.CURRENT_ACCOUNT}</RightMarginLabel>
+                  <ErrorMsg>{this.state.errors.account_type}</ErrorMsg>
                 </div>
             </RowDiv>
             <RowDiv className="uk-margin" justify="center" direction="column" alignItems="flex-start" width="100%" padding="0 1rem" >

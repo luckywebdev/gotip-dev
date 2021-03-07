@@ -68,6 +68,14 @@ export default (props) => {
   const adminState = useSelector( state => state.admin );
   const mainState = useSelector( state => state.main );
   const theme_color = typeof mainState.user !== 'undefined' && typeof mainState.user.theme_color !== 'undefined' ? mainState.user.theme_color : "#30AA89";
+
+  useEffect(() => {
+    if(typeof mainState.user !== 'undefined' && mainState.user.auth_level >= 3){
+      setAgentID(mainState.user.agent_id);
+      dispatch(admin.tryCreatorSearch(mainState.user.agent_id));
+    }
+  }, []);
+  
   useEffect(() => {
     if(typeof mainState.user !== 'undefined' && mainState.user.auth_level >= 3){
       setAgentID(mainState.user.agent_id);
@@ -156,8 +164,8 @@ export default (props) => {
                       return (
                         <tr key={index}>
                           <td>{`${item.agentName}`}</td>
-                          <td>{item.userID}</td>
-                          <td><a href="#" onClick={() => handleDetail(item.userID)} >{item.name.nickname}</a></td>
+                          <td>{item.uid}</td>
+                          <td><a href="#" onClick={() => handleDetail(item.uid)} >{item.name.nickname}</a></td>
                           <td>{item.name.value}</td>
                           <td></td>
                           <td></td>

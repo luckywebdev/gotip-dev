@@ -281,6 +281,57 @@ function* handleNoticeCreate () {
     })
   }
 
+  function* handleUpdateOtherUser () {
+    while (true) {
+      const action = yield take('UPDATE_OTHER_USER');
+      yield put({ type: 'SET_LOADING_TEXT', payload: '処理中' });
+      const { payload, error } = yield call(updateOtherUser, action.payload)
+      if (!error) {
+        yield put({ type: 'SET_LOADING_TEXT', payload: null })
+        if (payload && payload.result === true) {
+            yield put({ type: 'SUCCESSFUL_UPDATE_OTHER_USER', payload: payload })
+            yield put({ type: 'GET_OTHER_AGENT_ACCOUNT_INFO', payload: action.payload.uid })
+        } else {
+          yield put({ type: 'FAILED_UPDATE_OTHER_USER', payload: payload })
+          if(typeof payload.errMessage !== 'undefined')
+            alertErrorMessage(payload.errMessage)
+        }
+      } else {
+        if(typeof payload.errCode !== 'undefined')
+          alertErrorMessage(error.errCode)
+      }
+    }
+  }
+
+  function updateOtherUser(userData) {
+    return new Promise( async (resolve) => {
+      try {
+        firebase.auth().currentUser.getIdToken(true)
+        .then(async (idToken) => {
+          console.log("update_data", userData);
+          userData.idToken = idToken;
+          const response = await axios.post('/api/admin/updateUser', userData)
+            .catch((err) => {
+              console.error(err)
+            })
+          console.log(response)
+          resolve({
+            payload: {
+              result: response.data.result,
+              errMessage: response.data.error
+            }
+          })
+        })
+      } catch (err) {
+        console.error('Crashed at search.', err)
+        resolve({
+          payload: null,
+          error: { errCode: err }
+        })
+      }
+    })
+  }
+
 export default function* (firebaseRef) {
     firebase = firebaseRef
     yield fork(handleNoticeCreate)
@@ -289,4 +340,5 @@ export default function* (firebaseRef) {
     yield fork(handleGetNotice)
     yield fork(handleUserDelete)
     yield fork(handleCreatorSearch)
+    yield fork(handleUpdateOtherUser);
   }

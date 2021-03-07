@@ -35,6 +35,10 @@ router.get(
   '/user/:action/:userId',
   require('./api/user').bind(null, admin, db)
 )
+router.get(
+  '/user/:action',
+  require('./api/user').bind(null, admin, db)
+)
 router.post(
   '/agent/:action',
   require('./api/agent').bind(null, admin, db)
@@ -57,6 +61,10 @@ router.get(
 )
 router.post(
   '/points/:action/:type',
+  require('./api/points').bind(null, admin, db)
+)
+router.post(
+  '/points/:action',
   require('./api/points').bind(null, admin, db)
 )
 router.post(

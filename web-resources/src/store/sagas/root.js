@@ -11,6 +11,7 @@ import handleContact from './contact';
 import handleUserRegister from './register';
 import handleAgent from './agent';
 import handleAdmin from './admin';
+import handlePoints from './points';
 
 // import alertErrorMessage from './commonAlert'
 // import UIkit from 'uikit'
@@ -41,6 +42,7 @@ export default function* rootSaga (dispatch) {
   yield fork(handleBLEManage.bind(null, firebase))
   yield fork(handleAgent.bind(null, firebase))
   yield fork(handleAdmin.bind(null, firebase))
+  yield fork(handlePoints.bind(null, firebase))
   yield fork(handleContact)
   yield fork(handleUserRegister.bind(null, firebase))
 

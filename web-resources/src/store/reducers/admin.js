@@ -39,6 +39,12 @@ const initialState = {
         case 'FAILED_CREATOR_SEARCH':
             newState.creatorSearch = false;
             break;
-        }
+        case 'SUCCESSFUL_UPDATE_OTHER_USER':
+            newState.updateOtherUser = true;
+            break;
+        case 'FAILED_UPDATE_OTHER_USER':
+            newState.updateOtherUser = false;
+            break;
+    }
     return Object.assign({}, state, newState)
   }

@@ -113,9 +113,19 @@ class SignUpPanel_2 extends Component {
   }
 
   componentDidMount() {
-    this.setState({
+    const params = this.props.match.params;
+    if(Object.keys(params).length > 0 && params.constructor === Object){
+      console.log("params-agentID", params);
+      this.setState({
+        agency: params.agentID,
         step: this.props.step
-    })
+      })
+    }
+    else{
+      this.setState({
+        step: this.props.step
+      })
+    }
   }
 
   componentDidUpdate(prevProps, prevState){
@@ -218,8 +228,8 @@ class SignUpPanel_2 extends Component {
         errors.county = "*郡を入力してください。";
         isValid = false;
       }
-      if (!this.state.tel || (!this.state.tel.match(/^\d{10}$/) && !this.state.tel.match(/^\d{9}$/))) {
-        errors.tel = "*有効な電話番号を入力してください。 電話番号は先頭の0を除いた9または10桁となります。";
+      if (!this.state.tel || (!this.state.tel.match(/^\d{9,10}$/))) {
+        errors.tel = "*有効な電話番号を入力してください。 電話番号は先頭の0を除いた9または10桁となります!!!。";
         isValid = false;
       }
       if (this.state.tel && regex.exec(this.state.tel) !== null) {
@@ -400,7 +410,7 @@ class SignUpPanel_2 extends Component {
             <RowDiv className="uk-margin" justify="center" direction="column" alignItems="flex-start" width="80%" padding="0 1rem" >
                 <label className="uk-form-label" htmlFor="form-reg-tel">{ Constants.SIGNUP_2_PHONE }</label>
                 <div className="uk-form-controls" style={{width: '100%', marginTop: '.3rem', marginBottom: '.5rem'}}>
-                    <InputMask mask="9999999999" maskChar=" "  name="tel" style={InputMaskStyle} placeholder="0123456789" value={this.state.tel} onChange={ this.handleInput } />
+                    <InputMask mask="9999999999" maskChar=""  name="tel" style={InputMaskStyle} placeholder="1234567890" value={this.state.tel} onChange={ this.handleInput } />
                     <ErrorMsg>{this.state.errors.tel}</ErrorMsg>
                 </div>
             </RowDiv>

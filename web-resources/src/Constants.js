@@ -449,6 +449,20 @@ export const EARNED_USAGE_POINT = "獲得した利用ポイント";
 export const EARNED_SUBSCRIPTION_POINT = "獲得したサブスクリプションポイント";
 export const TRANSFER_MIN_AMOUNT = "振込下限ポイント";
 export const CONVERTIBLE_POINT = "変換可能ポイント";
+export const POINT_HISTORY = "チップ履歴";
+export const TIP_POINT_CONVERT = "チップポイントに変換する";
+export const DAILY_POINT_HISTORY = "日別チップ履歴";
+export const MONTHLY_POINT_HISTORY = "月別チップ履歴";
+export const DATE_SEARCH = "日付検索";
+export const PREV_DATE = "前日";
+export const TODAY = "今日";
+export const NEXT_DATE = "翌日";
+export const SORT = "並び替え";
+export const PREV_MONTH = "前月";
+export const THIS_MONTH = "今月";
+export const NEXT_MONTH = "翌月";
+
+
 
 export const CREATOR = "クリエイター";
 export const FAN = "ファン";
@@ -536,7 +550,8 @@ export const CREATOR_COMPENSATION = "クリエイター報酬";
 export const SALES = "売り上げ";
 export const COMPENSATION = "報酬";
 export const PAID_AMOUNT = "支払額";
-
+export const DAILYSALE = "日別売上";
+export const CREATOR_MONTH_SALE = "クリエイター別月間売上";
 
 // GET POST INFO DATE 
 export const getPostInfoDate = (activeDate) => {
@@ -580,6 +595,18 @@ export const convert_fulldate = (input_date) => {
   return result_date;
 }
 
+export const convert_fullStringDate = (input_date) => {
+  let initial_date = new Date(input_date);
+  let result_date = addZero(initial_date.getUTCFullYear()) + '年' + addZero(initial_date.getUTCMonth() + 1) + '月' + addZero(initial_date.getUTCDate()) + '日';
+  return result_date;
+}
+
+export const getMonthfromTimestamp = (timestamp) => {
+  let initial_date = new Date(timestamp);
+  let result_date = addZero(initial_date.getUTCFullYear()) + '年' + addZero(initial_date.getUTCMonth() + 1) + '月';
+  return result_date;
+}
+
 export const compareValues = (key, order = 'asc', subKey = null) => {
   return function innerSort(a, b) {
     if (!a.hasOwnProperty(key) || !b.hasOwnProperty(key)) {
@@ -617,4 +644,43 @@ export const compareValues = (key, order = 'asc', subKey = null) => {
       (order === 'desc') ? (comparison * -1) : comparison
     );
   };
+}
+
+export const convertToBlobPng = (dataUrl, fileType = 'png') => {
+  return new Promise(resolve => {
+  const canvas = document.createElement('canvas')
+  console.log(fileType);
+  const fileTypes = fileType === 'png' ? fileType : 'jpeg';
+  const img = document.createElement('img')
+  img.onload = () => {
+    canvas.height = img.height
+    canvas.width = img.width
+    const ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0)
+      canvas.toBlob((blob) => {
+        const fr = new FileReader()
+        fr.onload = () => {
+          resolve(fr.result)
+        }
+        fr.readAsDataURL(blob)
+    }, 'image/' + fileTypes, 1)
+  }
+  img.src = dataUrl
+  })
+}
+
+export const dayStartTime = () => {
+  let currentTime = new Date();
+  currentTime.setHours(0);
+  currentTime.setMinutes(0);
+  const result = currentTime.setSeconds(0);
+  return result;
+}
+
+export const dayEndTime = () => {
+  let currentTime = new Date();
+  currentTime.setHours(23);
+  currentTime.setMinutes(59);
+  const result = currentTime.setSeconds(59);
+  return result;
 }

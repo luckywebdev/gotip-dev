@@ -40,6 +40,7 @@ import ScheduleList from '../components/Module/ScheduleList';
 import RankingList from '../components/Module/RankingList';
 import LoadingCover from '../components/UI/loadingCover';
 import PointDetail from '../components/Module/Point';
+import ModalComponent from '../components/ModalComponent';
 
 const MainContainer = styled.div`
   width: 60%;
@@ -249,6 +250,11 @@ class Main extends Component {
     if(mainState.gettingState){
       loadingMessage = null;
     }
+    let currentPoint = 0;
+    if(typeof mainState.points !== 'undefined'){
+      currentPoint = mainState.points.data.normal.value + mainState.points.data.subscription.value;
+    }
+
 
     return (
       <Aux>
@@ -288,7 +294,7 @@ class Main extends Component {
                   <GoTipDiv>
                     <div>
                       <span style={{color: "#FFF", fontSize: "12px"}}>現在の保有ポイント</span>
-                      <span style={{color: "#FFF", fontSize: "22px", fontWeight: "bolder"}}>1000,000 <small>pt</small></span>
+                      <span style={{color: "#FFF", fontSize: "22px", fontWeight: "bolder"}}>{currentPoint } <small>pt</small></span>
                       <Btn backcolor="#FFF" color="#EA497B" fontSize="12px" margin=".3rem" padding=".3rem .8rem" text={Constants.CHECK} onClick={this.pointDetailModal} />
                     </div>
                   </GoTipDiv>
@@ -301,13 +307,23 @@ class Main extends Component {
                   <BLEList  editable={true} />
                 </InfoLeftSubSection>
                 <InfoRightSubSection>
-                  <ScheduleList editable={true} />
+                  {
+                    typeof mainState.user !== 'undefined' && mainState.user.auth_level === 2 ? (
+                      <ScheduleList editable={true} />
+                    ) : ''
+                  }
                 </InfoRightSubSection>
               </InfoSection>
               <InfoSection style={{paddingTop: 0}}>
-                <RankingList editable={true} />
+                {
+                  typeof mainState.user !== 'undefined' && mainState.user.auth_level === 2 ? (
+                    <RankingList editable={true} />
+                  ) : ''
+                }
               </InfoSection>
-            </MainContainer>            
+            </MainContainer>     
+            <ModalComponent />
+       
         </Layout>
       </Aux>
     );

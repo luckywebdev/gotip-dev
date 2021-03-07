@@ -25,7 +25,7 @@ class signInGoogle extends Component {
     }
     else{
       const { tryGoogleSignup } = this.props;
-      tryGoogleSignup();
+      tryGoogleSignup(this.props.agentID);
     }
   }
 

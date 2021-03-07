@@ -396,7 +396,7 @@ export default (props) => {
                                 <Text  str={Constants.SIGNUP_4_BRANCH_CODE} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0"  direction="column" alignItems="flex-start">
-                                <InputMask mask="999" maskChar=" "  name="branchCode" style={InputMaskStyle} placeholder="000"   onChange={ (e) => setBranchCode(e.target.value) } value={branchCode} />
+                                <InputMask mask="999" maskChar=""  name="branchCode" style={InputMaskStyle} placeholder="000"   onChange={ (e) => setBranchCode(e.target.value) } value={branchCode} />
                                 <ErrorMsg>{errors.branchCode}</ErrorMsg>
                             </Div>
                         </Div>
@@ -405,7 +405,7 @@ export default (props) => {
                                 <Text  str={Constants.BANK_ACCOUNT_NUMBER} textAlign="right" color="#999" fontSize=".8rem" margin="0 .3rem" />
                             </Div>
                             <Div width="65%" margin="0" padding="0" direction="column" alignItems="flex-start" >
-                                <InputMask mask="9999999" maskChar=" "  name="bankAccountNumber" style={InputMaskStyle} placeholder="0000000"  onChange={ (e) => setBankAccountNumber(e.target.value) } value={bankAccountNumber} />
+                                <InputMask mask="9999999" maskChar=""  name="bankAccountNumber" style={InputMaskStyle} placeholder="0000000"  onChange={ (e) => setBankAccountNumber(e.target.value) } value={bankAccountNumber} />
                                {/* <Input className="uk-input" type="text" name="bankAccountNumber" placeholder="" onChange={ (e) => setBankAccountNumber(e.target.value) } value={bankAccountNumber} /> */}
                                 <ErrorMsg>{errors.bankAccountNumber}</ErrorMsg>
                             </Div>

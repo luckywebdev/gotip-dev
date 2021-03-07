@@ -59,7 +59,7 @@ const ErrorMsg = styled.div`
 export default (props) => {
   let dispatch = useDispatch();
     const [agentID, setAgentID] = useState(100000);
-    const [title, setTitle] = useState("GOTIP代理店登録のご招待");
+    const [title, setTitle] = useState("GOTIPクリエイター登録のご招待");
     const [content, setContent] = useState("");
     const [receiveName, setReceiveName] = useState("");
     const [linkUrl, setLinkUrl] = useState(`${props.linkUrl}`);
@@ -69,7 +69,7 @@ export default (props) => {
 
     useEffect(() => {
         setLinkUrl(props.linkUrl);
-        setContent(`GOTIP代理店登録フォーム${props.linkUrl}`);
+        setContent(`GOTIPクリエイター登録フォーム${props.linkUrl}`);
         let parentAgentIdArr = props.linkUrl.split('/');
         let parentsAgentId = parentAgentIdArr.slice(-1)[0];
        var idArr = parentsAgentId.match(/.{1,6}/g);

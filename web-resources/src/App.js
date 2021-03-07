@@ -64,6 +64,8 @@ class App extends Component {
             <PrivateRoute path="/admin/creator/onlineCreator" exact component={AdminCreatorReg} />
             <PrivateRoute path="/admin/creator/saleCreator" exact component={AdminCreatorReg} />
             <PrivateRoute path="/admin/creator/compensation" exact component={AdminCreatorReg} />
+            <PrivateRoute path="/admin/creator/dailySale/:timestamp" exact component={AdminCreatorReg} />
+            <PrivateRoute path="/admin/creator/personalSale/:uid" exact component={AdminCreatorReg} />
 
             <PrivateRoute path="/admin/management/noticeEdit" exact component={AdminNoticeEdit} />
             <PrivateRoute path="/admin/management/userManage" exact component={AdminUserManage} />
@@ -74,12 +76,14 @@ class App extends Component {
             <PrivateRoute path="/contact" exact component={Contact} /> 
             <PrivateRoute path="/home" exact component={Home} />
             <PrivateRoute path="/regCreator" exact component={RegStep} />
+            <PrivateRoute path="/regCreator/:agentID" exact component={RegStep} />
             <PrivateRoute path="/regFan" exact component={RegFan} />
             <Route path="/registration" exact component={Registration} />
             <Route path="/company" exact component={Company} /> 
             <Route path="/terms" exact component={Terms} /> 
             <Route path="/privacy" exact component={Privacy} /> 
             <Route path="/signup" exact component={SignUp} />
+            <Route path="/signup/:agentID" exact component={SignUp} />
             <Route path="/land" exact component={Land} />
             <Route path="/:login" exact component={Land} />
             <Route path="/" exact component={Land} />
